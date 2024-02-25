@@ -1,0 +1,5 @@
+--markup markdown
+--protected
+--plugin sorbet
+--plugin doctest
+-e lib/r.rb
