@@ -552,7 +552,7 @@ module R
     # @see R::Err#unwrap_or_else
     sig do
       abstract
-        .params(blk: T.proc.params(arg: ErrType).returns(T.noreturn))
+        .params(blk: T.proc.params(arg: Err[ErrType]).returns(T.noreturn))
         .returns(OkType)
     end
     def try?(&blk); end
@@ -962,7 +962,7 @@ module R
 
     sig do
       override
-        .params(blk: T.proc.params(arg: ErrType).returns(T.noreturn))
+        .params(blk: T.proc.params(arg: Err[ErrType]).returns(T.noreturn))
         .returns(OkType)
     end
     def try?(&blk)
@@ -1338,11 +1338,11 @@ module R
     # @see R::Result#unwrap_or_else
     sig do
       override
-        .params(blk: T.proc.params(arg: ErrType).returns(T.noreturn))
+        .params(blk: T.proc.params(arg: Err[ErrType]).returns(T.noreturn))
         .returns(T.noreturn)
     end
     def try?(&blk)
-      yield(@value)
+      yield(self)
     end
 
     #

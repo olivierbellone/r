@@ -456,16 +456,16 @@ module R
         it "returns the value if the result is Ok" do
           x = T.let(R.ok(2), R::Result[Integer, String])
 
-          assert_equal(2, x.try? { raise "Unexpected try? block invocation" })
+          assert_equal(2, x.try? { |e| raise "Error: #{e.err}" })
         end
 
         it "computes the value from a closure if the result is Err" do
           x = T.let(R.err("foo"), R::Result[Integer, String])
 
           e = assert_raises(RuntimeError) do
-            x.try? { raise "Expected try? block invocation" }
+            x.try? { |e| raise "Error: #{e.err}" }
           end
-          assert_equal("Expected try? block invocation", e.message)
+          assert_equal("Error: foo", e.message)
         end
       end
     end

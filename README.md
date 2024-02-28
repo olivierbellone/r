@@ -162,16 +162,16 @@ end
 
 sig { params(info: Info).returns(R::Result[NilClass, StandardError]) }
 def write_info(info)
-  file = file_create("my_best_friends.txt").try? { |e| return R.err(e) }
-  file_write_all(file, "name: #{info.name}\n").try? { |e| return R.err(e) }
-  file_write_all(file, "age: #{info.age}\n").try? { |e| return R.err(e) }
-  file_write_all(file, "rating: #{info.rating}\n").try? { |e| return R.err(e) }
+  file = file_create("my_best_friends.txt").try? { |e| return e }
+  file_write_all(file, "name: #{info.name}\n").try? { |e| return e }
+  file_write_all(file, "age: #{info.age}\n").try? { |e| return e }
+  file_write_all(file, "rating: #{info.rating}\n").try? { |e| return e }
   R.ok(nil)
 end
 ```
 
-`#try?` is implemented exactly the same as `#unwrap_or_else`, the only difference is the signature for the block argument: the block passed to `#try` has `T.noreturn` has its return type, so it cannot output a value. The only two valid options are:
-- using `return` (somewhat ironically, given the `T.noreturn` return type), which will return out of the method in which the block is defined. This will only work with inline blocks, e.g. `result.try? { |e| return R.err(e) })`.
+`#try?` is very similar to `#unwrap_or_else`. The main differences is that it yields the `Err` instance (instead of the underlying value) and that has `T.noreturn` as its return type, so it cannot output a value. The only two valid options for the block are:
+- using `return` (somewhat ironically, given the `T.noreturn` return type), which will return out of the method in which the block is defined. This will only work with inline blocks, e.g. `result.try? { |e| return e }`.
 - raising an exception.
 
 If you think it's possible to implement something closer to Rust's `?`, I'd love to hear about it! Feel free to open an issue or PR to start a discussion.
