@@ -15,6 +15,8 @@ module R
     extend ::T::Helpers
     extend ::T::Generic
 
+    include Kernel
+
     interface!
     sealed!
 
