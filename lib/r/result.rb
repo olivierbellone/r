@@ -30,16 +30,16 @@ module R
     # `self` and `other` are both {Err} and `self.err == other.err`.
     #
     # @example
-    #   x = T.let(R::Ok(2), R::Result[Integer, String])
-    #   x == R::Ok(2) # => true
-    #   x == R::Ok(3) # => false
-    #   x == R::Err("not Ok") # => false
+    #   x = T.let(R.ok(2), R::Result[Integer, String])
+    #   x == R.ok(2) # => true
+    #   x == R.ok(3) # => false
+    #   x == R.err("not Ok") # => false
     #   x == "not Result" # => false
     #
-    #   x = T.let(R::Err("Some error message"), R::Result[Integer, String])
-    #   x == R::Ok(2) # => false
-    #   x == R::Err("Some error message") # => true
-    #   x == R::Err("Different error message") # => false
+    #   x = T.let(R.err("Some error message"), R::Result[Integer, String])
+    #   x == R.ok(2) # => false
+    #   x == R.err("Some error message") # => true
+    #   x == R.err("Different error message") # => false
     #   x == "not Result" # => false
     #
     # @see R::Ok#==
@@ -50,11 +50,11 @@ module R
     # Returns a string representation of `self`.
     #
     # @example
-    #   x = T.let(R::Ok(-3), R::Result[Integer, String])
-    #   x.inspect # => "R::Ok(-3)"
+    #   x = T.let(R.ok(-3), R::Result[Integer, String])
+    #   x.inspect # => "R.ok(-3)"
     #
-    #   x = T.let(R::Err("Some error message"), R::Result[Integer, String])
-    #   x.inspect # => "R::Err(\"Some error message\")"
+    #   x = T.let(R.err("Some error message"), R::Result[Integer, String])
+    #   x.inspect # => "R.err(\"Some error message\")"
     #
     # @see R::Ok#inspect
     # @see R::Err#inspect
@@ -64,10 +64,10 @@ module R
     # Returns `true` if the result is {Ok}.
     #
     # @example
-    #   x = T.let(R::Ok(-3), R::Result[Integer, String])
+    #   x = T.let(R.ok(-3), R::Result[Integer, String])
     #   x.ok? # => true
     #
-    #   x = T.let(R::Err("Some error message"), R::Result[Integer, String])
+    #   x = T.let(R.err("Some error message"), R::Result[Integer, String])
     #   x.ok? # => false
     #
     # @see R::Ok#ok?
@@ -78,13 +78,13 @@ module R
     # Returns `true` if the result is {Ok} and the value inside of it matches a predicate.
     #
     # @example
-    #   x = T.let(R::Ok(2), R::Result[Integer, String])
+    #   x = T.let(R.ok(2), R::Result[Integer, String])
     #   x.ok_and? { |x| x > 1 } # => true
     #
-    #   x = T.let(R::Ok(0), R::Result[Integer, String])
+    #   x = T.let(R.ok(0), R::Result[Integer, String])
     #   x.ok_and? { |x| x > 1 } # => false
     #
-    #   x = T.let(R::Err("hey"), R::Result[Integer, String])
+    #   x = T.let(R.err("hey"), R::Result[Integer, String])
     #   x.ok_and? { |x| x > 1 } # => false
     #
     # @see R::Ok#ok_and?
@@ -95,10 +95,10 @@ module R
     # Returns `true` if the result is {Err}.
     #
     # @example
-    #   x = T.let(R::Ok(-3), R::Result[Integer, String])
+    #   x = T.let(R.ok(-3), R::Result[Integer, String])
     #   x.err? # => false
     #
-    #   x = T.let(R::Err("Some error message"), R::Result[Integer, String])
+    #   x = T.let(R.err("Some error message"), R::Result[Integer, String])
     #   x.err? # => true
     #
     # @see R::Ok#err?
@@ -109,13 +109,13 @@ module R
     # Returns `true` if the result is {Err} and the value inside of it matches a predicate.
     #
     # @example
-    #   x = T.let(R::Err(ArgumentError.new), R::Result[Integer, StandardError])
+    #   x = T.let(R.err(ArgumentError.new), R::Result[Integer, StandardError])
     #   x.err_and? { |x| x.is_a?(ArgumentError) } # => true
     #
-    #   x = T.let(R::Err(IOError.new), R::Result[Integer, StandardError])
+    #   x = T.let(R.err(IOError.new), R::Result[Integer, StandardError])
     #   x.err_and? { |x| x.is_a?(ArgumentError) } # => false
     #
-    #   x = T.let(R::Ok(123), R::Result[Integer, StandardError])
+    #   x = T.let(R.ok(123), R::Result[Integer, StandardError])
     #   x.err_and? { |x| x.is_a?(ArgumentError) } # => false
     #
     # @see R::Ok#err_and?
@@ -126,10 +126,10 @@ module R
     # Returns the value if the result is {Ok}, or `nil` if the result is {Err}.
     #
     # @example
-    #   x = T.let(R::Ok(2), R::Result[Integer, String])
+    #   x = T.let(R.ok(2), R::Result[Integer, String])
     #   x.ok => 2
     #
-    #   x = T.let(R::Err("Nothing here"), R::Result[Integer, String])
+    #   x = T.let(R.err("Nothing here"), R::Result[Integer, String])
     #   x.ok => nil
     #
     # @see R::Ok#ok
@@ -140,10 +140,10 @@ module R
     # Returns the value if the result is {Err}, or `nil` if the result is {Ok}.
     #
     # @example
-    #   x = T.let(R::Ok(2), R::Result[Integer, String])
+    #   x = T.let(R.ok(2), R::Result[Integer, String])
     #   x.err => nil
     #
-    #   x = T.let(R::Err("Nothing here"), R::Result[Integer, String])
+    #   x = T.let(R.err("Nothing here"), R::Result[Integer, String])
     #   x.err => "Nothing here"
     #
     # @see R::Ok#err
@@ -159,9 +159,9 @@ module R
     # @example
     #   sig { params(str: String).returns(R::Result[Integer, String]) }
     #   def parse_int(str)
-    #     R::Ok(Integer(str))
+    #     R.ok(Integer(str))
     #   rescue ArgumentError
-    #     R::Err("Cannot parse #{str} as an integer")
+    #     R.err("Cannot parse #{str} as an integer")
     #   end
     #
     #   out = T.let([], T::Array[Integer])
@@ -193,10 +193,10 @@ module R
     # recommended to use {#map_or_else}, which is lazily evaluated.
     #
     # @example
-    #   x = T.let(R::Ok("foo"), R::Result[String, String])
+    #   x = T.let(R.ok("foo"), R::Result[String, String])
     #   x.map_or(42) { |v| v.size } # => 3
     #
-    #   x = T.let(R::Err("bar"), R::Result[String, String])
+    #   x = T.let(R.err("bar"), R::Result[String, String])
     #   x.map_or(42) { |v| v.size } # => 42
     #
     # @see R::Ok#map_or
@@ -220,10 +220,10 @@ module R
     # @example
     #   k = 21
     #
-    #   x = T.let(R::Ok("foo"), R::Result[String, String])
+    #   x = T.let(R.ok("foo"), R::Result[String, String])
     #   x.map_or_else(->(e) { k * 2 }) { |v| v.size } # => 3
     #
-    #   x = T.let(R::Err("bar"), R::Result[Integer, String])
+    #   x = T.let(R.err("bar"), R::Result[Integer, String])
     #   x.map_or_else(->(e) { k * 2 }) { |v| v.size } # => 42
     #
     # @see R::Ok#map_or_else
@@ -250,11 +250,11 @@ module R
     #     "error code: #{x}"
     #   end
     #
-    #   x = T.let(R::Ok(2), R::Result[Integer, Integer])
-    #   x.map_err { |x| stringify(x) } # => R::Ok(2)
+    #   x = T.let(R.ok(2), R::Result[Integer, Integer])
+    #   x.map_err { |x| stringify(x) } # => R.ok(2)
     #
-    #   x = T.let(R::Err(13), R::Result[Integer, Integer])
-    #   x.map_err { |x| stringify(x) } # => R::Err("error code: 13")
+    #   x = T.let(R.err(13), R::Result[Integer, Integer])
+    #   x.map_err { |x| stringify(x) } # => R.err("error code: 13")
     #
     # @see R::Ok#map_err
     # @see R::Err#map_err
@@ -270,7 +270,7 @@ module R
     #
     # @example
     #   msg = T.let(nil, T.nilable(String))
-    #   x = T.let(R::Ok("42"), R::Result[String, String])
+    #   x = T.let(R.ok("42"), R::Result[String, String])
     #   x
     #     .on_ok  { |x| msg = "Success! #{x}" }
     #     .on_err { |x| msg = "Failure! #{x}" }
@@ -285,7 +285,7 @@ module R
     #
     # @example
     #   msg = T.let(nil, T.nilable(String))
-    #   x = T.let(R::Err("ohno"), R::Result[String, String])
+    #   x = T.let(R.err("ohno"), R::Result[String, String])
     #   x
     #     .on_ok  { |x| msg = "Success! #{x}" }
     #     .on_err { |x| msg = "Failure! #{x}" }
@@ -305,11 +305,11 @@ module R
     #   of the {Err} value
     #
     # @example
-    #   x = T.let(R::Ok(2), R::Result[Integer, String])
+    #   x = T.let(R.ok(2), R::Result[Integer, String])
     #   x.expect!("Testing expect!") # => 2
     #
     # @example This example raises an {UnwrapFailedError} exception.
-    #   x = T.let(R::Err("emergency failure"), R::Result[Integer, String])
+    #   x = T.let(R.err("emergency failure"), R::Result[Integer, String])
     #   x.expect!("Testing expect!") # => raise R::UnwrapFailedError.new("Testing expect!", "emergency failure")
     #
     # @see R::Ok#expect!
@@ -325,11 +325,11 @@ module R
     # @raise [UnwrapFailedError] if the result is {Err}, with a custom message provided by the {Err}'s value
     #
     # @example
-    #   x = T.let(R::Ok(2), R::Result[Integer, String])
+    #   x = T.let(R.ok(2), R::Result[Integer, String])
     #   x.unwrap! # => 2
     #
     # @example This example raises an {UnwrapFailedError} exception.
-    #   x = T.let(R::Err("emergency failure"), R::Result[Integer, String])
+    #   x = T.let(R.err("emergency failure"), R::Result[Integer, String])
     #   x.unwrap! # => raise R::UnwrapFailedError.new("called `Result#unwrap!` on an `Err` value", "emergency failure")
     #
     # @see R::Ok#unwrap!
@@ -343,7 +343,7 @@ module R
     #   of the {Ok} value
     #
     # @example This example raises an {UnwrapFailedError} exception.
-    #   x = R::Ok(10)
+    #   x = R.ok(10)
     #   x.expect_err!("Testing expect_err!") # => raise R::UnwrapFailedError.new("Testing expect_err!", 10)
     #
     # @see R::Ok#expect_err!
@@ -356,11 +356,11 @@ module R
     # @raise [UnwrapFailedError] if the result is {Ok}, with a custom message provided by the {Ok}'s value
     #
     # @example This example raises an {UnwrapFailedError} exception.
-    #   x = T.let(R::Ok(2), R::Result[Integer, String])
+    #   x = T.let(R.ok(2), R::Result[Integer, String])
     #   x.unwrap_err! # => raise R::UnwrapFailedError.new("called `Result#unwrap_err!` on an `Ok` value", 2)
     #
     # @example
-    #   x = T.let(R::Err("emergency failure"), R::Result[Integer, String])
+    #   x = T.let(R.err("emergency failure"), R::Result[Integer, String])
     #   x.unwrap_err! # => "emergency failure"
     #
     # @see R::Ok#unwrap_err!
@@ -374,21 +374,21 @@ module R
     # recommended to use {and_then}, which is lazily evaluated.
     #
     # @example
-    #   x = T.let(R::Ok(2), R::Result[Integer, String])
-    #   y = T.let(R::Err("late error"), R::Result[String, String])
-    #   x.and(y) # => R::Err("late error")
+    #   x = T.let(R.ok(2), R::Result[Integer, String])
+    #   y = T.let(R.err("late error"), R::Result[String, String])
+    #   x.and(y) # => R.err("late error")
     #
-    #   x = T.let(R::Err("early error"), R::Result[Integer, String])
-    #   y = T.let(R::Ok("foo"), R::Result[String, String])
-    #   x.and(y) # => R::Err("early error")
+    #   x = T.let(R.err("early error"), R::Result[Integer, String])
+    #   y = T.let(R.ok("foo"), R::Result[String, String])
+    #   x.and(y) # => R.err("early error")
     #
-    #   x = T.let(R::Err("not a 2"), R::Result[Integer, String])
-    #   y = T.let(R::Err("late error"), R::Result[String, String])
-    #   x.and(y) # => R::Err("not a 2")
+    #   x = T.let(R.err("not a 2"), R::Result[Integer, String])
+    #   y = T.let(R.err("late error"), R::Result[String, String])
+    #   x.and(y) # => R.err("not a 2")
     #
-    #   x = T.let(R::Ok(2), R::Result[Integer, String])
-    #   y = T.let(R::Ok("different result type"), R::Result[String, String])
-    #   x.and(y) # => R::Ok("different result type")
+    #   x = T.let(R.ok(2), R::Result[Integer, String])
+    #   y = T.let(R.ok("different result type"), R::Result[String, String])
+    #   x.and(y) # => R.ok("different result type")
     #
     # @see R::Ok#and
     # @see R::Err#and
@@ -407,13 +407,13 @@ module R
     # @example
     #   sig { params(x: Integer).returns(R::Result[String, String])}
     #   def sqrt_then_to_s(x)
-    #     return R::Err("negative value") if x < 0
-    #     R::Ok(Math.sqrt(x).to_s)
+    #     return R.err("negative value") if x < 0
+    #     R.ok(Math.sqrt(x).to_s)
     #   end
     #
-    #   R::Ok(4).and_then { |x| sqrt_then_to_s(x) } # => R::Ok("2.0")
-    #   R::Ok(-4).and_then { |x| sqrt_then_to_s(x) } # => R::Err("negative value")
-    #   R::Err("not a number").and_then { |x| sqrt_then_to_s(x) } # => R::Err("not a number")
+    #   R.ok(4).and_then { |x| sqrt_then_to_s(x) } # => R.ok("2.0")
+    #   R.ok(-4).and_then { |x| sqrt_then_to_s(x) } # => R.err("negative value")
+    #   R.err("not a number").and_then { |x| sqrt_then_to_s(x) } # => R.err("not a number")
     #
     # @see R::Ok#and_then
     # @see R::Err#and_then
@@ -431,21 +431,21 @@ module R
     # recommended to use {or_else}, which is lazily evaluated.
     #
     # @example
-    #   x = T.let(R::Ok(2), R::Result[Integer, String])
-    #   y = T.let(R::Err("late error"), R::Result[Integer, String])
-    #   x.or(y) # => R::Ok(2)
+    #   x = T.let(R.ok(2), R::Result[Integer, String])
+    #   y = T.let(R.err("late error"), R::Result[Integer, String])
+    #   x.or(y) # => R.ok(2)
     #
-    #   x = T.let(R::Err("early error"), R::Result[Integer, String])
-    #   y = T.let(R::Ok(2), R::Result[Integer, String])
-    #   x.or(y) # => R::Ok(2)
+    #   x = T.let(R.err("early error"), R::Result[Integer, String])
+    #   y = T.let(R.ok(2), R::Result[Integer, String])
+    #   x.or(y) # => R.ok(2)
     #
-    #   x = T.let(R::Err("not a 2"), R::Result[Integer, String])
-    #   y = T.let(R::Err("late error"), R::Result[Integer, String])
-    #   x.or(y) # => R::Err("late error")
+    #   x = T.let(R.err("not a 2"), R::Result[Integer, String])
+    #   y = T.let(R.err("late error"), R::Result[Integer, String])
+    #   x.or(y) # => R.err("late error")
     #
-    #   x = T.let(R::Ok(2), R::Result[Integer, String])
-    #   y = T.let(R::Ok(100), R::Result[Integer, String])
-    #   x.or(y) # => R::Ok(2)
+    #   x = T.let(R.ok(2), R::Result[Integer, String])
+    #   y = T.let(R.ok(100), R::Result[Integer, String])
+    #   x.or(y) # => R.ok(2)
     #
     # @see R::Ok#or
     # @see R::Err#or
@@ -464,18 +464,18 @@ module R
     # @example
     #   sig { params(x: Integer).returns(R::Result[Integer, Integer])}
     #   def sq(x)
-    #     R::Ok(x * x)
+    #     R.ok(x * x)
     #   end
     #
     #   sig { params(x: Integer).returns(R::Result[Integer, Integer])}
     #   def err_(x)
-    #     R::Err(x)
+    #     R.err(x)
     #   end
     #
-    #   R::Ok(2).or_else { |x| sq(x) }.or_else { |x| sq(x) } # => R::Ok(2)
-    #   R::Ok(2).or_else { |x| err_(x) }.or_else { |x| sq(x) } # => R::Ok(2)
-    #   R::Err(3).or_else { |x| sq(x) }.or_else { |x| err_(x) } # => R::Ok(9)
-    #   R::Err(3).or_else { |x| err_(x) }.or_else { |x| err_(x) } # => R::Err(3)
+    #   R.ok(2).or_else { |x| sq(x) }.or_else { |x| sq(x) } # => R.ok(2)
+    #   R.ok(2).or_else { |x| err_(x) }.or_else { |x| sq(x) } # => R.ok(2)
+    #   R.err(3).or_else { |x| sq(x) }.or_else { |x| err_(x) } # => R.ok(9)
+    #   R.err(3).or_else { |x| err_(x) }.or_else { |x| err_(x) } # => R.err(3)
     #
     # @see R::Ok#or_else
     # @see R::Err#or_else
@@ -495,10 +495,10 @@ module R
     # @example
     #   default = 2
     #
-    #   x = T.let(R::Ok(9), R::Result[Integer, String])
+    #   x = T.let(R.ok(9), R::Result[Integer, String])
     #   x.unwrap_or(default) # => 9
     #
-    #   x = T.let(R::Err("error"), R::Result[Integer, String])
+    #   x = T.let(R.err("error"), R::Result[Integer, String])
     #   x.unwrap_or(default) # => 2
     #
     # @see R::Ok#unwrap_or
@@ -514,10 +514,10 @@ module R
     # Returns the contained {Ok} value or computes it from a closure.
     #
     # @example
-    #   x = T.let(R::Ok(2), R::Result[Integer, String])
+    #   x = T.let(R.ok(2), R::Result[Integer, String])
     #   x.unwrap_or_else(&:size) # => 2
     #
-    #   x = T.let(R::Err("foo"), R::Result[Integer, String])
+    #   x = T.let(R.err("foo"), R::Result[Integer, String])
     #   x.unwrap_or_else(&:size) # => 3
     #
     # @see R::Ok#unwrap_or_else
@@ -529,10 +529,37 @@ module R
         .returns(T.any(OkType, T.type_parameter(:DefaultType)))
     end
     def unwrap_or_else(&blk); end
+
+    # Returns the contained {Ok} value or calls the block with the {Err} value.
+    #
+    # This method is similar to {#unwrap_or_else}, but in case of an {Err} value, the block must short-circuit by
+    # either calling `return` (which will return from the enclosing method) or raising an exception.
+    #
+    # This is useful to make error handling less tedious when dealing with many methods returning results.
+    #
+    # @example
+    #   x = T.let(R.ok(2), R::Result[Integer, String])
+    #   x.try? { |e| return e } # => 2
+    #
+    #   x = T.let(R.err("foo"), R::Result[Integer, String])
+    #   x.try? { |e| return e } # => return R.err("foo")
+    #
+    # @see R::Ok#try?
+    # @see R::Err#try?
+    #
+    # @see R::Result#unwrap_or_else
+    # @see R::Ok#unwrap_or_else
+    # @see R::Err#unwrap_or_else
+    sig do
+      abstract
+        .params(blk: T.proc.params(arg: ErrType).returns(T.noreturn))
+        .returns(OkType)
+    end
+    def try?(&blk); end
   end
 
   sig { type_parameters(:T).params(value: T.type_parameter(:T)).returns(Ok[T.type_parameter(:T)]) }
-  def self.Ok(value)
+  def self.ok(value)
     Ok.new(value)
   end
 
@@ -558,10 +585,10 @@ module R
     # Returns `true` if `other` is {Ok} and `self.ok == other.ok`.
     #
     # @example
-    #   x = T.let(R::Ok(2), R::Result[Integer, String])
-    #   x == R::Ok(2) # => true
-    #   x == R::Ok(3) # => false
-    #   x == R::Err("not Ok") # => false
+    #   x = T.let(R.ok(2), R::Result[Integer, String])
+    #   x == R.ok(2) # => true
+    #   x == R.ok(3) # => false
+    #   x == R.err("not Ok") # => false
     #   x == "not Result" # => false
     #
     # @see R::Result#==
@@ -579,8 +606,8 @@ module R
     # Returns a string representation of `self`.
     #
     # @example
-    #   x = T.let(R::Ok(-3), R::Result[Integer, String])
-    #   x.inspect # => "R::Ok(-3)"
+    #   x = T.let(R.ok(-3), R::Result[Integer, String])
+    #   x.inspect # => "R.ok(-3)"
     #
     # @see R::Result#inspect
     # @see R::Err#inspect
@@ -592,7 +619,7 @@ module R
       else
         "<uninspectable value>"
       end
-      "#{self.class.name}(#{value_repr})"
+      "R.ok(#{value_repr})"
     end
 
     sig do
@@ -612,7 +639,7 @@ module R
     # Returns `true`.
     #
     # @example
-    #   x = T.let(R::Ok(-3), R::Result[Integer, String])
+    #   x = T.let(R.ok(-3), R::Result[Integer, String])
     #   x.ok? # => true
     #
     # @see R::Result#ok?
@@ -625,10 +652,10 @@ module R
     # Returns `true` if value matches a predicate.
     #
     # @example
-    #   x = T.let(R::Ok(2), R::Result[Integer, String])
+    #   x = T.let(R.ok(2), R::Result[Integer, String])
     #   x.ok_and? { |x| x > 1 } # => true
     #
-    #   x = T.let(R::Ok(0), R::Result[Integer, String])
+    #   x = T.let(R.ok(0), R::Result[Integer, String])
     #   x.ok_and? { |x| x > 1 } # => false
     #
     # @see R::Result#ok_and?
@@ -641,7 +668,7 @@ module R
     # Returns `false`.
     #
     # @example
-    #   x = T.let(R::Ok(-3), R::Result[Integer, String])
+    #   x = T.let(R.ok(-3), R::Result[Integer, String])
     #   x.err? # => false
     #
     # @see R::Result#err?
@@ -654,7 +681,7 @@ module R
     # Returns `false`.
     #
     # @example
-    #   x = T.let(R::Ok(123), R::Result[Integer, StandardError])
+    #   x = T.let(R.ok(123), R::Result[Integer, StandardError])
     #   x.err_and? { |x| x.is_a?(ArgumentError) } # => false
     #
     # @see R::Result#err_and?
@@ -667,7 +694,7 @@ module R
     # Returns the value.
     #
     # @example
-    #   x = T.let(R::Ok(2), R::Result[Integer, String])
+    #   x = T.let(R.ok(2), R::Result[Integer, String])
     #   x.ok => 2
     #
     # @see R::Result#ok
@@ -680,7 +707,7 @@ module R
     # Returns `nil`.
     #
     # @example
-    #   x = T.let(R::Ok(2), R::Result[Integer, String])
+    #   x = T.let(R.ok(2), R::Result[Integer, String])
     #   x.err => nil
     #
     # @see R::Result#err
@@ -712,7 +739,7 @@ module R
     # recommended to use {#map_or_else}, which is lazily evaluated.
     #
     # @example
-    #   x = T.let(R::Ok("foo"), R::Result[String, String])
+    #   x = T.let(R.ok("foo"), R::Result[String, String])
     #   x.map_or(42) { |v| v.size } # => 3
     #
     # @see R::Result#map_or
@@ -737,7 +764,7 @@ module R
     # @example
     #   k = 21
     #
-    #   x = T.let(R::Ok("foo"), R::Result[String, String])
+    #   x = T.let(R.ok("foo"), R::Result[String, String])
     #   x.map_or_else(->(e) { k * 2 }) { |v| v.size } # => 3
     #
     # @see R::Result#map_or_else
@@ -796,11 +823,11 @@ module R
     # @example
     #   x = R::Ok.new(2)
     #   y = R::Err.new("late error")
-    #   x.and(y) # => R::Err("late error")
+    #   x.and(y) # => R.err("late error")
     #
     #   x = R::Ok.new(2)
     #   y = R::Ok.new("different result type")
-    #   x.and(y) # => R::Ok("different result type")
+    #   x.and(y) # => R.ok("different result type")
     sig do
       override
         .type_parameters(:U, :F)
@@ -820,8 +847,8 @@ module R
     #     R::Ok.new(Math.sqrt(x).to_s)
     #   end
     #
-    #   R::Ok.new(4).and_then { |x| sqrt_then_to_s(x) } # => R::Ok("2.0")
-    #   R::Ok.new(-4).and_then { |x| sqrt_then_to_s(x) } # => R::Err("negative value")
+    #   R::Ok.new(4).and_then { |x| sqrt_then_to_s(x) } # => R.ok("2.0")
+    #   R::Ok.new(-4).and_then { |x| sqrt_then_to_s(x) } # => R.err("negative value")
     sig do
       override
         .type_parameters(:U, :F)
@@ -840,19 +867,19 @@ module R
     # @example
     #   x = T.let(R::Ok.new(2), R::Result[Integer, String])
     #   y = T.let(R::Err.new("late error"), R::Result[Integer, String])
-    #   x.or(y) # => R::Ok(2)
+    #   x.or(y) # => R.ok(2)
     #
     #   x = T.let(R::Err.new("early error"), R::Result[Integer, String])
     #   y = T.let(R::Ok.new(2), R::Result[Integer, String])
-    #   x.or(y) # => R::Ok(2)
+    #   x.or(y) # => R.ok(2)
     #
     #   x = T.let(R::Err.new("not a 2"), R::Result[Integer, String])
     #   y = T.let(R::Err.new("late error"), R::Result[Integer, String])
-    #   x.or(y) # => R::Err("late error")
+    #   x.or(y) # => R.err("late error")
     #
     #   x = T.let(R::Ok.new(2), R::Result[Integer, String])
     #   y = T.let(R::Ok.new(100), R::Result[Integer, String])
-    #   x.or(y) # => R::Ok(2)
+    #   x.or(y) # => R.ok(2)
     sig do
       override
         .type_parameters(:U, :F)
@@ -878,10 +905,10 @@ module R
     #     R::Err.new(x)
     #   end
     #
-    #   R::Ok.new(2).or_else { |x| sq(x) }.or_else { |x| sq(x) } # => R::Ok(2)
-    #   R::Ok.new(2).or_else { |x| err_(x) }.or_else { |x| sq(x) } # => R::Ok(2)
-    #   R::Err.new(3).or_else { |x| sq(x) }.or_else { |x| err_(x) } # => R::Ok(9)
-    #   R::Err.new(3).or_else { |x| err_(x) }.or_else { |x| err_(x) } # => R::Err(3)
+    #   R::Ok.new(2).or_else { |x| sq(x) }.or_else { |x| sq(x) } # => R.ok(2)
+    #   R::Ok.new(2).or_else { |x| err_(x) }.or_else { |x| sq(x) } # => R.ok(2)
+    #   R::Err.new(3).or_else { |x| sq(x) }.or_else { |x| err_(x) } # => R.ok(9)
+    #   R::Err.new(3).or_else { |x| err_(x) }.or_else { |x| err_(x) } # => R.err(3)
     sig do
       override
         .type_parameters(:U, :F)
@@ -933,6 +960,15 @@ module R
       @value
     end
 
+    sig do
+      override
+        .params(blk: T.proc.params(arg: ErrType).returns(T.noreturn))
+        .returns(OkType)
+    end
+    def try?(&blk)
+      @value
+    end
+
     sig { override.params(blk: T.proc.params(value: OkType).void).returns(T.self_type) }
     def on_ok(&blk)
       yield(@value)
@@ -946,7 +982,7 @@ module R
   end
 
   sig { type_parameters(:E).params(value: T.type_parameter(:E)).returns(Err[T.type_parameter(:E)]) }
-  def self.Err(value)
+  def self.err(value)
     Err.new(value)
   end
 
@@ -972,10 +1008,10 @@ module R
     # Returns `true` if `other` is both {Err} and `self.err == other.err`.
     #
     # @example
-    #   x = T.let(R::Err("Some error message"), R::Result[Integer, String])
-    #   x == R::Ok(2) # => false
-    #   x == R::Err("Some error message") # => true
-    #   x == R::Err("Different error message") # => false
+    #   x = T.let(R.err("Some error message"), R::Result[Integer, String])
+    #   x == R.ok(2) # => false
+    #   x == R.err("Some error message") # => true
+    #   x == R.err("Different error message") # => false
     #   x == "not Result" # => false
     #
     # @see R::Result#==
@@ -993,8 +1029,8 @@ module R
     # Returns a string representation of `self`.
     #
     # @example
-    #   x = T.let(R::Err("Some error message"), R::Result[Integer, String])
-    #   x.inspect # => "R::Err(\"Some error message\")"
+    #   x = T.let(R.err("Some error message"), R::Result[Integer, String])
+    #   x.inspect # => "R.err(\"Some error message\")"
     #
     # @see R::Result#inspect
     # @see R::Ok#inspect
@@ -1006,7 +1042,7 @@ module R
       else
         "<uninspectable value>"
       end
-      "#{self.class.name}(#{value_repr})"
+      "R.err(#{value_repr})"
     end
 
     sig do
@@ -1026,7 +1062,7 @@ module R
     # Returns `false`.
     #
     # @example
-    #   x = T.let(R::Err("Some error message"), R::Result[Integer, String])
+    #   x = T.let(R.err("Some error message"), R::Result[Integer, String])
     #   x.ok? # => false
     #
     # @see R::Result#ok?
@@ -1039,7 +1075,7 @@ module R
     # Returns `false`.
     #
     # @example
-    #   x = T.let(R::Err("hey"), R::Result[Integer, String])
+    #   x = T.let(R.err("hey"), R::Result[Integer, String])
     #   x.ok_and? { |x| x > 1 } # => false
     #
     # @see R::Result#ok_and?
@@ -1052,7 +1088,7 @@ module R
     # Returns `true`.
     #
     # @example
-    #   x = T.let(R::Err("Some error message"), R::Result[Integer, String])
+    #   x = T.let(R.err("Some error message"), R::Result[Integer, String])
     #   x.err? # => true
     #
     # @see R::Ok#err?
@@ -1065,10 +1101,10 @@ module R
     # Returns `true` if the value matches a predicate.
     #
     # @example
-    #   x = T.let(R::Err(ArgumentError.new), R::Result[Integer, StandardError])
+    #   x = T.let(R.err(ArgumentError.new), R::Result[Integer, StandardError])
     #   x.err_and? { |x| x.is_a?(ArgumentError) } # => true
     #
-    #   x = T.let(R::Err(IOError.new), R::Result[Integer, StandardError])
+    #   x = T.let(R.err(IOError.new), R::Result[Integer, StandardError])
     #   x.err_and? { |x| x.is_a?(ArgumentError) } # => false
     #
     # @see R::Result#err_and?
@@ -1081,7 +1117,7 @@ module R
     # Returns `nil`.
     #
     # @example
-    #   x = T.let(R::Err("Nothing here"), R::Result[Integer, String])
+    #   x = T.let(R.err("Nothing here"), R::Result[Integer, String])
     #   x.ok => nil
     #
     # @see R::Result#ok
@@ -1094,7 +1130,7 @@ module R
     # Returns the value.
     #
     # @example
-    #   x = T.let(R::Err("Nothing here"), R::Result[Integer, String])
+    #   x = T.let(R.err("Nothing here"), R::Result[Integer, String])
     #   x.err => "Nothing here"
     #
     # @see R::Result#err
@@ -1126,7 +1162,7 @@ module R
     # recommended to use {#map_or_else}, which is lazily evaluated.
     #
     # @example
-    #   x = T.let(R::Err("bar"), R::Result[String, String])
+    #   x = T.let(R.err("bar"), R::Result[String, String])
     #   x.map_or(42) { |v| v.size } # => 42
     #
     # @see R::Result#map_or
@@ -1151,7 +1187,7 @@ module R
     # @example
     #   k = 21
     #
-    #   x = T.let(R::Err("bar"), R::Result[Integer, String])
+    #   x = T.let(R.err("bar"), R::Result[Integer, String])
     #   x.map_or_else(->(e) { k * 2 }) { |v| v.size } # => 42
     #
     # @see R::Result#map_or_else
@@ -1294,6 +1330,18 @@ module R
         .returns(T.type_parameter(:DefaultType))
     end
     def unwrap_or_else(&blk)
+      yield(@value)
+    end
+
+    # Computes an {Ok} value from a closure.
+    #
+    # @see R::Result#unwrap_or_else
+    sig do
+      override
+        .params(blk: T.proc.params(arg: ErrType).returns(T.noreturn))
+        .returns(T.noreturn)
+    end
+    def try?(&blk)
       yield(@value)
     end
 

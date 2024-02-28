@@ -34,15 +34,15 @@ end
 
 sig { params(header: String).returns(R::Result[Version, String]) }
 def parse_version(header)
-  return R::Err("invalid header length") if header.size != 1
+  return R.err("invalid header length") if header.size != 1
 
   case header
   when "1"
-    R::Ok(Version::Version1)
+    R.ok(Version::Version1)
   when "2"
-    R::Ok(Version::Version2)
+    R.ok(Version::Version2)
   else
-    R::Err("invalid version")
+    R.err("invalid version")
   end
 end
 
@@ -97,18 +97,18 @@ end
 # Silly method to simulate Rust's `File::create`.
 sig { params(name: String).returns(R::Result[File, StandardError]) }
 def file_create(name)
-  R::Ok(File.open(name, "w"))
+  R.ok(File.open(name, "w"))
 rescue StandardError => e
-  R::Err(e)
+  R.err(e)
 end
 
 # Another silly method to simulate Rust's `file.write_all`.
 sig { params(file: File, data: String).returns(R::Result[NilClass, StandardError]) }
 def file_write_all(file, data)
   file.write(data)
-  R::Ok(nil)
+  R.ok(nil)
 rescue StandardError => e
-  R::Err(e)
+  R.err(e)
 end
 
 sig { params(info: Info).returns(R::Result[NilClass, StandardError]) }
@@ -118,19 +118,19 @@ def write_info(info)
   when R::Ok
     file = result.ok
   else
-    return R::Err(result.err)
+    return R.err(result.err)
   end
 
   result = file_write_all(file, "name: #{info.name}\n")
-  return R::Err(result.err) if result.is_a?(R::Err)
+  return R.err(result.err) if result.is_a?(R::Err)
 
   result = file_write_all(file, "age: #{info.age}\n")
-  return R::Err(result.err) if result.is_a?(R::Err)
+  return R.err(result.err) if result.is_a?(R::Err)
 
   result = file_write_all(file, "rating: #{info.rating}\n")
-  return R::Err(result.err) if result.is_a?(R::Err)
+  return R.err(result.err) if result.is_a?(R::Err)
 
-  R::Ok(nil)
+  R.ok(nil)
 end
 ```
 
@@ -146,27 +146,27 @@ end
 # Silly method to simulate Rust's `File::create`.
 sig { params(name: String).returns(R::Result[File, StandardError]) }
 def file_create(name)
-  R::Ok(File.open(name, "w"))
+  R.ok(File.open(name, "w"))
 rescue StandardError => e
-  R::Err(e)
+  R.err(e)
 end
 
 # Another silly method to simulate Rust's `file.write_all`.
 sig { params(file: File, data: String).returns(R::Result[NilClass, StandardError]) }
 def file_write_all(file, data)
   file.write(data)
-  R::Ok(nil)
+  R.ok(nil)
 rescue StandardError => e
-  R::Err(e)
+  R.err(e)
 end
 
 sig { params(info: Info).returns(R::Result[NilClass, StandardError]) }
 def write_info(info)
-  file = file_create("my_best_friends.txt").unwrap_or_else { |e| return R::Err(e) }
-  file_write_all(file, "name: #{info.name}\n").or_else { |e| return R::Err(e) }
-  file_write_all(file, "age: #{info.age}\n").or_else { |e| return R::Err(e) }
-  file_write_all(file, "rating: #{info.rating}\n").or_else { |e| return R::Err(e) }
-  R::Ok(nil)
+  file = file_create("my_best_friends.txt").unwrap_or_else { |e| return R.err(e) }
+  file_write_all(file, "name: #{info.name}\n").or_else { |e| return R.err(e) }
+  file_write_all(file, "age: #{info.age}\n").or_else { |e| return R.err(e) }
+  file_write_all(file, "rating: #{info.rating}\n").or_else { |e| return R.err(e) }
+  R.ok(nil)
 end
 ```
 

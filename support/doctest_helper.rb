@@ -14,24 +14,24 @@ end
 
 sig { params(x: Integer).returns(R::Result[String, String]) }
 def sqrt_then_to_s(x)
-  return R::Err("negative value") if x < 0
+  return R.err("negative value") if x < 0
 
-  R::Ok(Math.sqrt(x).to_s)
+  R.ok(Math.sqrt(x).to_s)
 end
 
 sig { params(x: Integer).returns(R::Result[Integer, Integer]) }
 def sq(x)
-  R::Ok(x * x)
+  R.ok(x * x)
 end
 
 sig { params(x: Integer).returns(R::Result[Integer, Integer]) }
 def err_(x)
-  R::Err(x)
+  R.err(x)
 end
 
 sig { params(str: String).returns(R::Result[Integer, String]) }
 def parse_int(str)
-  R::Ok(Integer(str))
+  R.ok(Integer(str))
 rescue ArgumentError
-  R::Err("Cannot parse #{str} as an integer")
+  R.err("Cannot parse #{str} as an integer")
 end
