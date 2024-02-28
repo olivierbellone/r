@@ -83,7 +83,7 @@ When writing code that calls many functions that return `R::Result`s, the error 
 
 Rust has the question mark operator [`?`](https://doc.rust-lang.org/std/result/#the-question-mark-operator-) to hide some of the boilerplate of propagating errors up the call stack.
 
-I haven't figured out a way to reproduce this specific feature in Ruby, but it is possible to approximate it by using the `#or_else` and `#unwrap_or_else` methods and leveraging the fact that calling `return` within a block will return from the method that created the block.
+I haven't figured out a way to reproduce this specific feature in Ruby, but it is possible to approximate it by using the `#try?` method and leveraging the fact that calling `return` within a block will return from the method that created the block.
 
 So you could replace this:
 
@@ -118,17 +118,17 @@ def write_info(info)
   when R::Ok
     file = result.ok
   else
-    return R.err(result.err)
+    return result
   end
 
   result = file_write_all(file, "name: #{info.name}\n")
-  return R.err(result.err) if result.is_a?(R::Err)
+  return result if result.is_a?(R::Err)
 
   result = file_write_all(file, "age: #{info.age}\n")
-  return R.err(result.err) if result.is_a?(R::Err)
+  return result if result.is_a?(R::Err)
 
   result = file_write_all(file, "rating: #{info.rating}\n")
-  return R.err(result.err) if result.is_a?(R::Err)
+  return result if result.is_a?(R::Err)
 
   R.ok(nil)
 end
@@ -162,13 +162,17 @@ end
 
 sig { params(info: Info).returns(R::Result[NilClass, StandardError]) }
 def write_info(info)
-  file = file_create("my_best_friends.txt").unwrap_or_else { |e| return R.err(e) }
-  file_write_all(file, "name: #{info.name}\n").or_else { |e| return R.err(e) }
-  file_write_all(file, "age: #{info.age}\n").or_else { |e| return R.err(e) }
-  file_write_all(file, "rating: #{info.rating}\n").or_else { |e| return R.err(e) }
+  file = file_create("my_best_friends.txt").try? { |e| return R.err(e) }
+  file_write_all(file, "name: #{info.name}\n").try? { |e| return R.err(e) }
+  file_write_all(file, "age: #{info.age}\n").try? { |e| return R.err(e) }
+  file_write_all(file, "rating: #{info.rating}\n").try? { |e| return R.err(e) }
   R.ok(nil)
 end
 ```
+
+`#try?` is implemented exactly the same as `#unwrap_or_else`, the only difference is the signature for the block argument: the block passed to `#try` has `T.noreturn` has its return type, so it cannot output a value. The only two valid options are:
+- using `return` (somewhat ironically, given the `T.noreturn` return type), which will return out of the method in which the block is defined. This will only work with inline blocks, e.g. `result.try? { |e| return R.err(e) })`.
+- raising an exception.
 
 If you think it's possible to implement something closer to Rust's `?`, I'd love to hear about it! Feel free to open an issue or PR to start a discussion.
 
