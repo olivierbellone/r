@@ -157,17 +157,21 @@ module R
     # This function can be used to compose the results of two functions.
     #
     # @example
-    #   sig { params(str: String).returns(R::Result[Integer, String]) }
-    #   def parse_int(str)
-    #     R.ok(Integer(str))
-    #   rescue ArgumentError
-    #     R.err("Cannot parse #{str} as an integer")
+    #   module Example
+    #     extend T::Sig
+    #
+    #     sig { params(str: String).returns(R::Result[Integer, String]) }
+    #     def self.parse_int(str)
+    #       R.ok(Integer(str))
+    #     rescue ArgumentError
+    #       R.err("Cannot parse #{str} as an integer")
+    #     end
     #   end
     #
     #   out = T.let([], T::Array[Integer])
     #   text = "1\n2\nHi\n4\n"
     #   text.lines.each do |num|
-    #     res = parse_int(num).map { |i| i * 2 }
+    #     res = Example.parse_int(num).map { |i| i * 2 }
     #     case res
     #     when R::Ok
     #       out << res.ok
@@ -245,16 +249,20 @@ module R
     # This function can be used to pass through a successful result while handling an error.
     #
     # @example
-    #   sig { params(x: Integer).returns(String) }
-    #   def stringify(x)
-    #     "error code: #{x}"
+    #   module Example
+    #     extend T::Sig
+    #
+    #     sig { params(x: Integer).returns(String) }
+    #     def self.stringify(x)
+    #       "error code: #{x}"
+    #     end
     #   end
     #
     #   x = T.let(R.ok(2), R::Result[Integer, Integer])
-    #   x.map_err { |x| stringify(x) } # => R.ok(2)
+    #   x.map_err { |x| Example.stringify(x) } # => R.ok(2)
     #
     #   x = T.let(R.err(13), R::Result[Integer, Integer])
-    #   x.map_err { |x| stringify(x) } # => R.err("error code: 13")
+    #   x.map_err { |x| Example.stringify(x) } # => R.err("error code: 13")
     #
     # @see R::Ok#map_err
     # @see R::Err#map_err
@@ -267,6 +275,8 @@ module R
     def map_err(&blk); end
 
     # Calls the provided block with the contained value (if {Ok}).
+    #
+    # Returns `self` so this can be chained with {#on_err}.
     #
     # @example
     #   msg = T.let(nil, T.nilable(String))
@@ -282,6 +292,8 @@ module R
     def on_ok(&blk); end
 
     # Calls the provided block with the contained error (if {Err}).
+    #
+    # Returns `self` so this can be chained with {#on_ok}.
     #
     # @example
     #   msg = T.let(nil, T.nilable(String))
@@ -346,6 +358,10 @@ module R
     #   x = R.ok(10)
     #   x.expect_err!("Testing expect_err!") # => raise R::UnwrapFailedError.new("Testing expect_err!", 10)
     #
+    # @example
+    #   x = T.let(R.err("emergency failure"), R::Result[Integer, String])
+    #   x.expect_err!("Testing expect_err!") # => "emergency failure"
+    #
     # @see R::Ok#expect_err!
     # @see R::Err#expect_err!
     sig { abstract.params(msg: String).returns(ErrType) }
@@ -405,15 +421,19 @@ module R
     # This function can be used for control flow based on {Result} values.
     #
     # @example
-    #   sig { params(x: Integer).returns(R::Result[String, String])}
-    #   def sqrt_then_to_s(x)
-    #     return R.err("negative value") if x < 0
-    #     R.ok(Math.sqrt(x).to_s)
+    #   module Example
+    #     extend T::Sig
+    #
+    #     sig { params(x: Integer).returns(R::Result[String, String])}
+    #     def self.sqrt_then_to_s(x)
+    #       return R.err("negative value") if x < 0
+    #       R.ok(Math.sqrt(x).to_s)
+    #     end
     #   end
     #
-    #   R.ok(4).and_then { |x| sqrt_then_to_s(x) } # => R.ok("2.0")
-    #   R.ok(-4).and_then { |x| sqrt_then_to_s(x) } # => R.err("negative value")
-    #   R.err("not a number").and_then { |x| sqrt_then_to_s(x) } # => R.err("not a number")
+    #   R.ok(4).and_then { |x| Example.sqrt_then_to_s(x) } # => R.ok("2.0")
+    #   R.ok(-4).and_then { |x| Example.sqrt_then_to_s(x) } # => R.err("negative value")
+    #   R.err("not a number").and_then { |x| Example.sqrt_then_to_s(x) } # => R.err("not a number")
     #
     # @see R::Ok#and_then
     # @see R::Err#and_then
@@ -462,20 +482,24 @@ module R
     # This function can be used for control flow based on {Result} values.
     #
     # @example
-    #   sig { params(x: Integer).returns(R::Result[Integer, Integer])}
-    #   def sq(x)
-    #     R.ok(x * x)
+    #   module Example
+    #     extend T::Sig
+    #
+    #     sig { params(x: Integer).returns(R::Result[Integer, Integer])}
+    #     def self.sq(x)
+    #       R.ok(x * x)
+    #     end
+    #
+    #     sig { params(x: Integer).returns(R::Result[Integer, Integer])}
+    #     def self.err(x)
+    #       R.err(x)
+    #     end
     #   end
     #
-    #   sig { params(x: Integer).returns(R::Result[Integer, Integer])}
-    #   def err_(x)
-    #     R.err(x)
-    #   end
-    #
-    #   R.ok(2).or_else { |x| sq(x) }.or_else { |x| sq(x) } # => R.ok(2)
-    #   R.ok(2).or_else { |x| err_(x) }.or_else { |x| sq(x) } # => R.ok(2)
-    #   R.err(3).or_else { |x| sq(x) }.or_else { |x| err_(x) } # => R.ok(9)
-    #   R.err(3).or_else { |x| err_(x) }.or_else { |x| err_(x) } # => R.err(3)
+    #   R.ok(2).or_else { |x| Example.sq(x) }.or_else { |x| Example.sq(x) } # => R.ok(2)
+    #   R.ok(2).or_else { |x| Example.err(x) }.or_else { |x| Example.sq(x) } # => R.ok(2)
+    #   R.err(3).or_else { |x| Example.sq(x) }.or_else { |x| Example.err(x) } # => R.ok(9)
+    #   R.err(3).or_else { |x| Example.err(x) }.or_else { |x| Example.err(x) } # => R.err(3)
     #
     # @see R::Ok#or_else
     # @see R::Err#or_else
@@ -558,6 +582,16 @@ module R
     def try?(&blk); end
   end
 
+  # Creates a new instance of {Ok}.
+  #
+  # This is a shorthand for `R::Ok.new(...)`.
+  #
+  # @example
+  #   x = T.let(R.ok(2), R::Result[Integer, String])
+  #   x.is_a?(R::Ok) # => true
+  #
+  # @see R::Ok#initialize
+  # @see R::Ok.new
   sig(:final) { type_parameters(:T).params(value: T.type_parameter(:T)).returns(Ok[T.type_parameter(:T)]) }
   def self.ok(value)
     Ok.new(value)
@@ -625,6 +659,10 @@ module R
       "R.ok(#{value_repr})"
     end
 
+    # Creates a new instance of {Ok}.
+    #
+    # @see R.ok
+    # @see R::Ok#initialize
     sig(:final) do
       type_parameters(:T)
         .params(value: T.type_parameter(:T))
@@ -634,6 +672,10 @@ module R
       super
     end
 
+    # Creates a new instance of {Ok}.
+    #
+    # @see R.ok
+    # @see R::Ok.new
     sig(:final) { params(value: OkType).void }
     def initialize(value)
       @value = value
@@ -785,6 +827,25 @@ module R
       yield(@value)
     end
 
+    # Leaves the value untouched.
+    #
+    # This function can be used to pass through a successful result while handling an error.
+    #
+    # @example
+    #   module Example
+    #     extend T::Sig
+    #
+    #     sig { params(x: Integer).returns(String) }
+    #     def self.stringify(x)
+    #       "error code: #{x}"
+    #     end
+    #   end
+    #
+    #   x = T.let(R.ok(2), R::Result[Integer, Integer])
+    #   x.map_err { |x| Example.stringify(x) } # => R.ok(2)
+    #
+    # @see R::Result#map_err
+    # @see R::Err#map_err
     sig(:final) do
       override
         .type_parameters(:F)
@@ -801,21 +862,58 @@ module R
     #   self
     # end
 
+    # Returns the contained {Ok} value.
+    #
+    # @example
+    #   x = T.let(R.ok(2), R::Result[Integer, String])
+    #   x.expect!("Testing expect!") # => 2
+    #
+    # @see R::Result#expect!
+    # @see R::Err#expect!
     sig(:final) { override.params(msg: String).returns(OkType) }
     def expect!(msg)
       @value
     end
 
+    # Returns the contained {Ok} value.
+    #
+    # @example
+    #   x = T.let(R.ok(2), R::Result[Integer, String])
+    #   x.unwrap! # => 2
+    #
+    # @see R::Result#unwrap!
+    # @see R::Err#unwrap!
     sig(:final) { override.returns(OkType) }
     def unwrap!
       @value
     end
 
+    # Raises an {UnwrapFailedError}.
+    #
+    # @raise [UnwrapFailedError] with a message including the passed message, and the content
+    #   of the {Ok} value
+    #
+    # @example This example raises an {UnwrapFailedError} exception.
+    #   x = R.ok(10)
+    #   x.expect_err!("Testing expect_err!") # => raise R::UnwrapFailedError.new("Testing expect_err!", 10)
+    #
+    # @see R::Result#expect_err!
+    # @see R::Err#expect_err!
     sig(:final) { override.params(msg: String).returns(T.noreturn) }
     def expect_err!(msg)
       raise UnwrapFailedError.new(msg, @value)
     end
 
+    # Raises an {UnwrapFailedError}.
+    #
+    # @raise [UnwrapFailedError] with a custom message provided by the {Ok}'s value
+    #
+    # @example This example raises an {UnwrapFailedError} exception.
+    #   x = T.let(R.ok(2), R::Result[Integer, String])
+    #   x.unwrap_err! # => raise R::UnwrapFailedError.new("called `Result#unwrap_err!` on an `Ok` value", 2)
+    #
+    # @see R::Result#unwrap_err!
+    # @see R::Err#unwrap_err!
     sig(:final) { override.returns(T.noreturn) }
     def unwrap_err!
       raise UnwrapFailedError.new("called `Result#unwrap_err!` on an `Ok` value", @value)
@@ -823,14 +921,20 @@ module R
 
     # Returns `res`.
     #
+    # Arguments passed to `and` are eagerly evaluated; if you are passing the result of a function call, it is
+    # recommended to use {and_then}, which is lazily evaluated.
+    #
     # @example
-    #   x = R::Ok.new(2)
-    #   y = R::Err.new("late error")
+    #   x = T.let(R.ok(2), R::Result[Integer, String])
+    #   y = T.let(R.err("late error"), R::Result[String, String])
     #   x.and(y) # => R.err("late error")
     #
-    #   x = R::Ok.new(2)
-    #   y = R::Ok.new("different result type")
+    #   x = T.let(R.ok(2), R::Result[Integer, String])
+    #   y = T.let(R.ok("different result type"), R::Result[String, String])
     #   x.and(y) # => R.ok("different result type")
+    #
+    # @see R::Result#and
+    # @see R::Err#and
     sig(:final) do
       override
         .type_parameters(:U, :F)
@@ -843,15 +947,24 @@ module R
 
     # Calls the block.
     #
+    # This function can be used for control flow based on {Result} values.
+    #
     # @example
-    #   sig { params(x: Integer).returns(R::Result[String, String])}
-    #   def sqrt_then_to_s(x)
-    #     return R::Err.new("negative value") if x < 0
-    #     R::Ok.new(Math.sqrt(x).to_s)
+    #   module Example
+    #     extend T::Sig
+    #
+    #     sig { params(x: Integer).returns(R::Result[String, String])}
+    #     def self.sqrt_then_to_s(x)
+    #       return R.err("negative value") if x < 0
+    #       R.ok(Math.sqrt(x).to_s)
+    #     end
     #   end
     #
-    #   R::Ok.new(4).and_then { |x| sqrt_then_to_s(x) } # => R.ok("2.0")
-    #   R::Ok.new(-4).and_then { |x| sqrt_then_to_s(x) } # => R.err("negative value")
+    #   R.ok(4).and_then { |x| Example.sqrt_then_to_s(x) } # => R.ok("2.0")
+    #   R.ok(-4).and_then { |x| Example.sqrt_then_to_s(x) } # => R.err("negative value")
+    #
+    # @see R::Result#and_then
+    # @see R::Err#and_then
     sig(:final) do
       override
         .type_parameters(:U, :F)
@@ -868,21 +981,16 @@ module R
     # recommended to use {or_else}, which is lazily evaluated.
     #
     # @example
-    #   x = T.let(R::Ok.new(2), R::Result[Integer, String])
-    #   y = T.let(R::Err.new("late error"), R::Result[Integer, String])
+    #   x = T.let(R.ok(2), R::Result[Integer, String])
+    #   y = T.let(R.err("late error"), R::Result[Integer, String])
     #   x.or(y) # => R.ok(2)
     #
-    #   x = T.let(R::Err.new("early error"), R::Result[Integer, String])
-    #   y = T.let(R::Ok.new(2), R::Result[Integer, String])
+    #   x = T.let(R.ok(2), R::Result[Integer, String])
+    #   y = T.let(R.ok(100), R::Result[Integer, String])
     #   x.or(y) # => R.ok(2)
     #
-    #   x = T.let(R::Err.new("not a 2"), R::Result[Integer, String])
-    #   y = T.let(R::Err.new("late error"), R::Result[Integer, String])
-    #   x.or(y) # => R.err("late error")
-    #
-    #   x = T.let(R::Ok.new(2), R::Result[Integer, String])
-    #   y = T.let(R::Ok.new(100), R::Result[Integer, String])
-    #   x.or(y) # => R.ok(2)
+    # @see R::Result#or
+    # @see R::Err#or
     sig(:final) do
       override
         .type_parameters(:U, :F)
@@ -898,20 +1006,25 @@ module R
     # This function can be used for control flow based on {Result} values.
     #
     # @example
-    #   sig { params(x: Integer).returns(R::Result[Integer, Integer])}
-    #   def sq(x)
-    #     R::Ok.new(x * x)
+    #   module Example
+    #     extend T::Sig
+    #
+    #     sig { params(x: Integer).returns(R::Result[Integer, Integer])}
+    #     def self.sq(x)
+    #       R.ok(x * x)
+    #     end
+    #
+    #     sig { params(x: Integer).returns(R::Result[Integer, Integer])}
+    #     def self.err(x)
+    #       R.err(x)
+    #     end
     #   end
     #
-    #   sig { params(x: Integer).returns(R::Result[Integer, Integer])}
-    #   def err_(x)
-    #     R::Err.new(x)
-    #   end
+    #   R.ok(2).or_else { |x| Example.sq(x) }.or_else { |x| Example.sq(x) } # => R.ok(2)
+    #   R.ok(2).or_else { |x| Example.err(x) }.or_else { |x| Example.sq(x) } # => R.ok(2)
     #
-    #   R::Ok.new(2).or_else { |x| sq(x) }.or_else { |x| sq(x) } # => R.ok(2)
-    #   R::Ok.new(2).or_else { |x| err_(x) }.or_else { |x| sq(x) } # => R.ok(2)
-    #   R::Err.new(3).or_else { |x| sq(x) }.or_else { |x| err_(x) } # => R.ok(9)
-    #   R::Err.new(3).or_else { |x| err_(x) }.or_else { |x| err_(x) } # => R.err(3)
+    # @see R::Result#or_else
+    # @see R::Err#or_else
     sig(:final) do
       override
         .type_parameters(:U, :F)
@@ -930,11 +1043,11 @@ module R
     # @example
     #   default = 2
     #
-    #   x = T.let(R::Ok.new(9), R::Result[Integer, String])
+    #   x = T.let(R.ok(9), R::Result[Integer, String])
     #   x.unwrap_or(default) # => 9
     #
-    #   x = T.let(R::Err.new("error"), R::Result[Integer, String])
-    #   x.unwrap_or(default) # => 2
+    # @see R::Result#unwrap_or
+    # @see R::Err#unwrap_or
     sig(:final) do
       override
         .type_parameters(:DefaultType)
@@ -948,11 +1061,11 @@ module R
     # Returns the contained {Ok} value.
     #
     # @example
-    #   x = T.let(R::Ok.new(2), R::Result[Integer, String])
+    #   x = T.let(R.ok(2), R::Result[Integer, String])
     #   x.unwrap_or_else(&:size) # => 2
     #
-    #   x = T.let(R::Err.new("foo"), R::Result[Integer, String])
-    #   x.unwrap_or_else(&:size) # => 3
+    # @see R::Result#unwrap_or_else
+    # @see R::Err#unwrap_or_else
     sig(:final) do
       override
         .type_parameters(:DefaultType)
@@ -963,6 +1076,23 @@ module R
       @value
     end
 
+    # Returns the contained {Ok} value.
+    #
+    # This method is similar to {#unwrap_or_else}, but in case of an {Err} value, the block must short-circuit by
+    # either calling `return` (which will return from the enclosing method) or raising an exception.
+    #
+    # This is useful to make error handling less tedious when dealing with many methods returning results.
+    #
+    # @example
+    #   x = T.let(R.ok(2), R::Result[Integer, String])
+    #   x.try? { |e| return e } # => 2
+    #
+    # @see R::Result#try?
+    # @see R::Err#try?
+    #
+    # @see R::Result#unwrap_or_else
+    # @see R::Ok#unwrap_or_else
+    # @see R::Err#unwrap_or_else
     sig(:final) do
       override
         .params(blk: T.proc.params(arg: Err[ErrType]).returns(T.noreturn))
@@ -972,18 +1102,52 @@ module R
       @value
     end
 
+    # Calls the provided block with the contained value.
+    #
+    # Returns `self` so this can be chained with {#on_err}.
+    #
+    # @example
+    #   msg = T.let(nil, T.nilable(String))
+    #   x = T.let(R.ok("42"), R::Result[String, String])
+    #   x.on_ok  { |x| msg = "Success! #{x}" }
+    #   msg # => "Success! 42"
+    #
+    # @see R::Result#on_ok
+    # @see R::Err#on_ok
     sig(:final) { override.params(blk: T.proc.params(value: OkType).void).returns(T.self_type) }
     def on_ok(&blk)
       yield(@value)
       self
     end
 
+    # Does nothing.
+    #
+    # Returns `self` so this can be chained with {#on_ok}.
+    #
+    # @example
+    #   msg = T.let(nil, T.nilable(String))
+    #   x = T.let(R.ok("42"), R::Result[String, String])
+    #   x.on_err { |x| msg = "Failure! #{x}" }
+    #   msg # => nil
+    #
+    # @see R::Result#on_err
+    # @see R::Err#on_err
     sig(:final) { override.params(blk: T.proc.params(value: ErrType).void).returns(T.self_type) }
     def on_err(&blk)
       self
     end
   end
 
+  # Creates a new instance of {Err}.
+  #
+  # This is a shorthand for `R::Err.new(...)`.
+  #
+  # @example
+  #   x = T.let(R.err("sadface"), R::Result[Integer, String])
+  #   x.is_a?(R::Err) # => true
+  #
+  # @see R::Err#initialize
+  # @see R::Err.new
   sig(:final) { type_parameters(:E).params(value: T.type_parameter(:E)).returns(Err[T.type_parameter(:E)]) }
   def self.err(value)
     Err.new(value)
@@ -1051,6 +1215,10 @@ module R
       "R.err(#{value_repr})"
     end
 
+    # Creates a new instance of {Err}.
+    #
+    # @see R.err
+    # @see R::Err#initialize
     sig(:final) do
       type_parameters(:E)
         .params(value: T.type_parameter(:E))
@@ -1060,6 +1228,10 @@ module R
       super(value)
     end
 
+    # Creates a new instance of {Err}.
+    #
+    # @see R.err
+    # @see R::Err.new
     sig(:final) { params(value: ErrType).void }
     def initialize(value)
       @value = value
@@ -1211,9 +1383,25 @@ module R
       default.call(@value)
     end
 
-    # Maps a {Result}`[T, E]` to {Result}`[T, F]` by applying a function to the contained {Err} value.
+    # Maps a {Result}`[T, E]` to {Result}`[T, F]` by applying a function to a contained {Err} value.
+    #
+    # This function can be used to pass through a successful result while handling an error.
+    #
+    # @example
+    #   module Example
+    #     extend T::Sig
+    #
+    #     sig { params(x: Integer).returns(String) }
+    #     def self.stringify(x)
+    #       "error code: #{x}"
+    #     end
+    #   end
+    #
+    #   x = T.let(R.err(13), R::Result[Integer, Integer])
+    #   x.map_err { |x| Example.stringify(x) } # => R.err("error code: 13")
     #
     # @see R::Result#map_err
+    # @see R::Ok#map_err
     sig(:final) do
       override
         .type_parameters(:F)
@@ -1229,17 +1417,32 @@ module R
     #   self
     # end
 
-    # Raises an {UnwrapFailedError} exception.
+    # Raises an {UnwrapFailedError}.
+    #
+    # @raise [UnwrapFailedError] with a message including the passed message, and the content
+    #   of the {Err} value
+    #
+    # @example This example raises an {UnwrapFailedError} exception.
+    #   x = T.let(R.err("emergency failure"), R::Result[Integer, String])
+    #   x.expect!("Testing expect!") # => raise R::UnwrapFailedError.new("Testing expect!", "emergency failure")
     #
     # @see R::Result#expect!
+    # @see R::Ok#expect!
     sig(:final) { override.params(msg: String).returns(T.noreturn) }
     def expect!(msg)
       raise UnwrapFailedError.new(msg, @value)
     end
 
-    # Raises an {UnwrapFailedError} exception.
+    # Raises an {UnwrapFailedError}.
+    #
+    # @raise [UnwrapFailedError] with a custom message provided by the {Err}'s value
+    #
+    # @example This example raises an {UnwrapFailedError} exception.
+    #   x = T.let(R.err("emergency failure"), R::Result[Integer, String])
+    #   x.unwrap! # => raise R::UnwrapFailedError.new("called `Result#unwrap!` on an `Err` value", "emergency failure")
     #
     # @see R::Result#unwrap!
+    # @see R::Ok#unwrap!
     sig(:final) { override.returns(T.noreturn) }
     def unwrap!
       raise UnwrapFailedError.new("called `Result#unwrap!` on an `Err` value", @value)
@@ -1247,7 +1450,12 @@ module R
 
     # Returns the contained {Err} value.
     #
+    # @example
+    #   x = T.let(R.err("emergency failure"), R::Result[Integer, String])
+    #   x.expect_err!("Testing expect_err!") # => "emergency failure"
+    #
     # @see R::Result#expect_err!
+    # @see R::Ok#expect_err!
     sig(:final) { override.params(msg: String).returns(ErrType) }
     def expect_err!(msg)
       @value
@@ -1255,7 +1463,12 @@ module R
 
     # Returns the contained {Err} value.
     #
+    # @example
+    #   x = T.let(R.err("emergency failure"), R::Result[Integer, String])
+    #   x.unwrap_err! # => "emergency failure"
+    #
     # @see R::Result#unwrap_err!
+    # @see R::Ok#unwrap_err!
     sig(:final) { override.returns(ErrType) }
     def unwrap_err!
       @value
@@ -1263,7 +1476,20 @@ module R
 
     # Returns the {Err} value of `self`.
     #
-    # @see R::Result#and
+    # Arguments passed to `and` are eagerly evaluated; if you are passing the result of a function call, it is
+    # recommended to use {and_then}, which is lazily evaluated.
+    #
+    # @example
+    #   x = T.let(R.err("early error"), R::Result[Integer, String])
+    #   y = T.let(R.ok("foo"), R::Result[String, String])
+    #   x.and(y) # => R.err("early error")
+    #
+    #   x = T.let(R.err("not a 2"), R::Result[Integer, String])
+    #   y = T.let(R.err("late error"), R::Result[String, String])
+    #   x.and(y) # => R.err("not a 2")
+    #
+    # @see R::Ok#and
+    # @see R::Err#and
     sig(:final) do
       override
         .type_parameters(:U, :F)
@@ -1274,9 +1500,25 @@ module R
       self
     end
 
-    # returns the {Err} value of `self`.
+    # Returns the {Err} value of `self`.
+    #
+    # This function can be used for control flow based on {Result} values.
+    #
+    # @example
+    #   module Example
+    #     extend T::Sig
+    #
+    #     sig { params(x: Integer).returns(R::Result[String, String])}
+    #     def self.sqrt_then_to_s(x)
+    #       return R.err("negative value") if x < 0
+    #       R.ok(Math.sqrt(x).to_s)
+    #     end
+    #   end
+    #
+    #   R.err("not a number").and_then { |x| Example.sqrt_then_to_s(x) } # => R.err("not a number")
     #
     # @see R::Result#and_then
+    # @see R::Ok#and_then
     sig(:final) do
       override
         .type_parameters(:U, :F)
@@ -1289,7 +1531,20 @@ module R
 
     # Returns `res`.
     #
+    # Arguments passed to `or` are eagerly evaluated; if you are passing the result of a function call, it is
+    # recommended to use {or_else}, which is lazily evaluated.
+    #
+    # @example
+    #   x = T.let(R.err("early error"), R::Result[Integer, String])
+    #   y = T.let(R.ok(2), R::Result[Integer, String])
+    #   x.or(y) # => R.ok(2)
+    #
+    #   x = T.let(R.err("not a 2"), R::Result[Integer, String])
+    #   y = T.let(R.err("late error"), R::Result[Integer, String])
+    #   x.or(y) # => R.err("late error")
+    #
     # @see R::Result#or
+    # @see R::Ok#or
     sig(:final) do
       override
         .type_parameters(:U, :F)
@@ -1302,7 +1557,28 @@ module R
 
     # Calls the block.
     #
+    # This function can be used for control flow based on {Result} values.
+    #
+    # @example
+    #   module Example
+    #     extend T::Sig
+    #
+    #     sig { params(x: Integer).returns(R::Result[Integer, Integer])}
+    #     def self.sq(x)
+    #       R.ok(x * x)
+    #     end
+    #
+    #     sig { params(x: Integer).returns(R::Result[Integer, Integer])}
+    #     def self.err(x)
+    #       R.err(x)
+    #     end
+    #   end
+    #
+    #   R.err(3).or_else { |x| Example.sq(x) }.or_else { |x| Example.err(x) } # => R.ok(9)
+    #   R.err(3).or_else { |x| Example.err(x) }.or_else { |x| Example.err(x) } # => R.err(3)
+    #
     # @see R::Result#or_else
+    # @see R::Ok#or_else
     sig(:final) do
       override
         .type_parameters(:U, :F)
@@ -1315,7 +1591,17 @@ module R
 
     # Returns the provided default.
     #
+    # Arguments passed to `unwrap_or` are eagerly evaluated; if you are passing the result of a function call, it is
+    # recommended to use {unwrap_or_else}, which is lazily evaluated.
+    #
+    # @example
+    #   default = 2
+    #
+    #   x = T.let(R.err("error"), R::Result[Integer, String])
+    #   x.unwrap_or(default) # => 2
+    #
     # @see R::Result#unwrap_or
+    # @see R::Ok#unwrap_or
     sig(:final) do
       override
         .type_parameters(:DefaultType)
@@ -1326,9 +1612,14 @@ module R
       default
     end
 
-    # Computes an {Ok} value from a closure.
+    # Computes a value from a closure.
+    #
+    # @example
+    #   x = T.let(R.err("foo"), R::Result[Integer, String])
+    #   x.unwrap_or_else(&:size) # => 3
     #
     # @see R::Result#unwrap_or_else
+    # @see R::Ok#unwrap_or_else
     sig(:final) do
       override
         .type_parameters(:DefaultType)
@@ -1339,9 +1630,23 @@ module R
       yield(@value)
     end
 
-    # Computes an {Ok} value from a closure.
+    # Calls the block with the {Err} value.
+    #
+    # This method is similar to {#unwrap_or_else}, but in case of an {Err} value, the block must short-circuit by
+    # either calling `return` (which will return from the enclosing method) or raising an exception.
+    #
+    # This is useful to make error handling less tedious when dealing with many methods returning results.
+    #
+    # @example
+    #   x = T.let(R.err("foo"), R::Result[Integer, String])
+    #   x.try? { |e| return e } # => return R.err("foo")
+    #
+    # @see R::Result#try?
+    # @see R::Ok#try?
     #
     # @see R::Result#unwrap_or_else
+    # @see R::Ok#unwrap_or_else
+    # @see R::Err#unwrap_or_else
     sig(:final) do
       override
         .params(blk: T.proc.params(arg: Err[ErrType]).returns(T.noreturn))
@@ -1351,15 +1656,35 @@ module R
       yield(self)
     end
 
+    # Does nothing.
     #
-    # CALLBACK API -- not part of Rust
+    # Returns `self` so this can be chained with {#on_err}.
     #
-
+    # @example
+    #   msg = T.let(nil, T.nilable(String))
+    #   x = T.let(R.err("ohno"), R::Result[String, String])
+    #   x.on_ok { |x| msg = "Success! #{x}" }
+    #   msg # => nil
+    #
+    # @see R::Result#on_ok
+    # @see R::Ok#on_ok
     sig(:final) { override.params(blk: T.proc.params(value: OkType).void).returns(T.self_type) }
     def on_ok(&blk)
       self
     end
 
+    # Calls the provided block with the contained value.
+    #
+    # Returns `self` so this can be chained with {#on_ok}.
+    #
+    # @example
+    #   msg = T.let(nil, T.nilable(String))
+    #   x = T.let(R.err("ohno"), R::Result[String, String])
+    #   x.on_err { |x| msg = "Failure! #{x}" }
+    #   msg # => "Failure! ohno"
+    #
+    # @see R::Result#on_err
+    # @see R::Ok#on_err
     sig(:final) { override.params(blk: T.proc.params(value: ErrType).void).returns(T.self_type) }
     def on_err(&blk)
       yield(@value)

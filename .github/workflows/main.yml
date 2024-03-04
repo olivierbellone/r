@@ -53,3 +53,6 @@ jobs:
 
       - name: Run tests
         run: bundle exec rake test
+
+      - name: Run doc examples
+        run: bundle exec yard doctest
