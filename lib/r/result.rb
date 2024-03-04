@@ -11,9 +11,9 @@ module R
   # @see R::Ok
   # @see R::Err
   module Result
-    extend ::T::Sig
-    extend ::T::Helpers
-    extend ::T::Generic
+    extend T::Sig
+    extend T::Helpers
+    extend T::Generic
 
     include Kernel
 
@@ -44,7 +44,7 @@ module R
     #
     # @see R::Ok#==
     # @see R::Err#==
-    sig { abstract.params(other: T.anything).returns(::T::Boolean) }
+    sig { abstract.params(other: T.anything).returns(T::Boolean) }
     def ==(other); end
 
     # Returns a string representation of `self`.
@@ -72,7 +72,7 @@ module R
     #
     # @see R::Ok#ok?
     # @see R::Err#ok?
-    sig { abstract.returns(::T::Boolean) }
+    sig { abstract.returns(T::Boolean) }
     def ok?; end
 
     # Returns `true` if the result is {Ok} and the value inside of it matches a predicate.
@@ -89,7 +89,7 @@ module R
     #
     # @see R::Ok#ok_and?
     # @see R::Err#ok_and?
-    sig { abstract.params(blk: T.proc.params(value: OkType).returns(::T::Boolean)).returns(::T::Boolean) }
+    sig { abstract.params(blk: T.proc.params(value: OkType).returns(T::Boolean)).returns(T::Boolean) }
     def ok_and?(&blk); end
 
     # Returns `true` if the result is {Err}.
@@ -103,7 +103,7 @@ module R
     #
     # @see R::Ok#err?
     # @see R::Err#err?
-    sig { abstract.returns(::T::Boolean) }
+    sig { abstract.returns(T::Boolean) }
     def err?; end
 
     # Returns `true` if the result is {Err} and the value inside of it matches a predicate.
@@ -120,7 +120,7 @@ module R
     #
     # @see R::Ok#err_and?
     # @see R::Err#err_and?
-    sig { abstract.params(blk: T.proc.params(value: ErrType).returns(::T::Boolean)).returns(::T::Boolean) }
+    sig { abstract.params(blk: T.proc.params(value: ErrType).returns(T::Boolean)).returns(T::Boolean) }
     def err_and?(&blk); end
 
     # Returns the value if the result is {Ok}, or `nil` if the result is {Err}.
@@ -558,7 +558,7 @@ module R
     def try?(&blk); end
   end
 
-  sig { type_parameters(:T).params(value: T.type_parameter(:T)).returns(Ok[T.type_parameter(:T)]) }
+  sig(:final) { type_parameters(:T).params(value: T.type_parameter(:T)).returns(Ok[T.type_parameter(:T)]) }
   def self.ok(value)
     Ok.new(value)
   end
@@ -569,9 +569,12 @@ module R
   # @see R::Err
   class Ok
     extend T::Sig
+    extend T::Helpers
     extend T::Generic
 
     include Result
+
+    final!
 
     # The type of the success value.
     OkType = type_member
@@ -593,7 +596,7 @@ module R
     #
     # @see R::Result#==
     # @see R::Err#==
-    sig { override.params(other: T.anything).returns(T::Boolean) }
+    sig(:final) { override.params(other: T.anything).returns(T::Boolean) }
     def ==(other)
       case other
       when Ok
@@ -611,7 +614,7 @@ module R
     #
     # @see R::Result#inspect
     # @see R::Err#inspect
-    sig { override.returns(String) }
+    sig(:final) { override.returns(String) }
     def inspect
       value_repr = case @value
       when Object
@@ -622,7 +625,7 @@ module R
       "R.ok(#{value_repr})"
     end
 
-    sig do
+    sig(:final) do
       type_parameters(:T)
         .params(value: T.type_parameter(:T))
         .returns(T.all(T.attached_class, Ok[T.type_parameter(:T)]))
@@ -631,7 +634,7 @@ module R
       super
     end
 
-    sig { params(value: OkType).void }
+    sig(:final) { params(value: OkType).void }
     def initialize(value)
       @value = value
     end
@@ -644,7 +647,7 @@ module R
     #
     # @see R::Result#ok?
     # @see R::Err#ok?
-    sig { override.returns(TrueClass) }
+    sig(:final) { override.returns(TrueClass) }
     def ok?
       true
     end
@@ -660,7 +663,7 @@ module R
     #
     # @see R::Result#ok_and?
     # @see R::Err#ok_and?
-    sig { override.params(blk: T.proc.params(value: OkType).returns(T::Boolean)).returns(T::Boolean) }
+    sig(:final) { override.params(blk: T.proc.params(value: OkType).returns(T::Boolean)).returns(T::Boolean) }
     def ok_and?(&blk)
       yield(@value)
     end
@@ -673,7 +676,7 @@ module R
     #
     # @see R::Result#err?
     # @see R::Err#err?
-    sig { override.returns(FalseClass) }
+    sig(:final) { override.returns(FalseClass) }
     def err?
       false
     end
@@ -686,7 +689,7 @@ module R
     #
     # @see R::Result#err_and?
     # @see R::Err#err_and?
-    sig { override.params(blk: T.proc.params(value: ErrType).returns(T::Boolean)).returns(FalseClass) }
+    sig(:final) { override.params(blk: T.proc.params(value: ErrType).returns(T::Boolean)).returns(FalseClass) }
     def err_and?(&blk)
       false
     end
@@ -699,7 +702,7 @@ module R
     #
     # @see R::Result#ok
     # @see R::Err#ok
-    sig { override.returns(OkType) }
+    sig(:final) { override.returns(OkType) }
     def ok
       @value
     end
@@ -712,7 +715,7 @@ module R
     #
     # @see R::Result#err
     # @see R::Err#err
-    sig { override.returns(NilClass) }
+    sig(:final) { override.returns(NilClass) }
     def err
       nil
     end
@@ -723,7 +726,7 @@ module R
     #
     # @see R::Result#map
     # @see R::Err#map
-    sig do
+    sig(:final) do
       override
         .type_parameters(:U)
         .params(blk: T.proc.params(value: OkType).returns(T.type_parameter(:U)))
@@ -744,7 +747,7 @@ module R
     #
     # @see R::Result#map_or
     # @see R::Err#map_or
-    sig do
+    sig(:final) do
       override
         .type_parameters(:U)
         .params(
@@ -769,7 +772,7 @@ module R
     #
     # @see R::Result#map_or_else
     # @see R::Err#map_or_else
-    sig do
+    sig(:final) do
       override
         .type_parameters(:U)
         .params(
@@ -782,7 +785,7 @@ module R
       yield(@value)
     end
 
-    sig do
+    sig(:final) do
       override
         .type_parameters(:F)
         .params(blk: T.proc.params(value: ErrType).returns(T.type_parameter(:F)))
@@ -798,22 +801,22 @@ module R
     #   self
     # end
 
-    sig { override.params(msg: String).returns(OkType) }
+    sig(:final) { override.params(msg: String).returns(OkType) }
     def expect!(msg)
       @value
     end
 
-    sig { override.returns(OkType) }
+    sig(:final) { override.returns(OkType) }
     def unwrap!
       @value
     end
 
-    sig { override.params(msg: String).returns(T.noreturn) }
+    sig(:final) { override.params(msg: String).returns(T.noreturn) }
     def expect_err!(msg)
       raise UnwrapFailedError.new(msg, @value)
     end
 
-    sig { override.returns(T.noreturn) }
+    sig(:final) { override.returns(T.noreturn) }
     def unwrap_err!
       raise UnwrapFailedError.new("called `Result#unwrap_err!` on an `Ok` value", @value)
     end
@@ -828,7 +831,7 @@ module R
     #   x = R::Ok.new(2)
     #   y = R::Ok.new("different result type")
     #   x.and(y) # => R.ok("different result type")
-    sig do
+    sig(:final) do
       override
         .type_parameters(:U, :F)
         .params(res: Result[T.type_parameter(:U), T.type_parameter(:F)])
@@ -849,7 +852,7 @@ module R
     #
     #   R::Ok.new(4).and_then { |x| sqrt_then_to_s(x) } # => R.ok("2.0")
     #   R::Ok.new(-4).and_then { |x| sqrt_then_to_s(x) } # => R.err("negative value")
-    sig do
+    sig(:final) do
       override
         .type_parameters(:U, :F)
         .params(blk: T.proc.params(arg: OkType).returns(Result[T.type_parameter(:U), T.type_parameter(:F)]))
@@ -880,7 +883,7 @@ module R
     #   x = T.let(R::Ok.new(2), R::Result[Integer, String])
     #   y = T.let(R::Ok.new(100), R::Result[Integer, String])
     #   x.or(y) # => R.ok(2)
-    sig do
+    sig(:final) do
       override
         .type_parameters(:U, :F)
         .params(res: Result[T.type_parameter(:U), T.type_parameter(:F)])
@@ -909,7 +912,7 @@ module R
     #   R::Ok.new(2).or_else { |x| err_(x) }.or_else { |x| sq(x) } # => R.ok(2)
     #   R::Err.new(3).or_else { |x| sq(x) }.or_else { |x| err_(x) } # => R.ok(9)
     #   R::Err.new(3).or_else { |x| err_(x) }.or_else { |x| err_(x) } # => R.err(3)
-    sig do
+    sig(:final) do
       override
         .type_parameters(:U, :F)
         .params(blk: T.proc.params(arg: ErrType).returns(Result[T.type_parameter(:U), T.type_parameter(:F)]))
@@ -932,7 +935,7 @@ module R
     #
     #   x = T.let(R::Err.new("error"), R::Result[Integer, String])
     #   x.unwrap_or(default) # => 2
-    sig do
+    sig(:final) do
       override
         .type_parameters(:DefaultType)
         .params(default: T.type_parameter(:DefaultType))
@@ -950,7 +953,7 @@ module R
     #
     #   x = T.let(R::Err.new("foo"), R::Result[Integer, String])
     #   x.unwrap_or_else(&:size) # => 3
-    sig do
+    sig(:final) do
       override
         .type_parameters(:DefaultType)
         .params(blk: T.proc.params(arg: ErrType).returns(T.type_parameter(:DefaultType)))
@@ -960,7 +963,7 @@ module R
       @value
     end
 
-    sig do
+    sig(:final) do
       override
         .params(blk: T.proc.params(arg: Err[ErrType]).returns(T.noreturn))
         .returns(OkType)
@@ -969,19 +972,19 @@ module R
       @value
     end
 
-    sig { override.params(blk: T.proc.params(value: OkType).void).returns(T.self_type) }
+    sig(:final) { override.params(blk: T.proc.params(value: OkType).void).returns(T.self_type) }
     def on_ok(&blk)
       yield(@value)
       self
     end
 
-    sig { override.params(blk: T.proc.params(value: ErrType).void).returns(T.self_type) }
+    sig(:final) { override.params(blk: T.proc.params(value: ErrType).void).returns(T.self_type) }
     def on_err(&blk)
       self
     end
   end
 
-  sig { type_parameters(:E).params(value: T.type_parameter(:E)).returns(Err[T.type_parameter(:E)]) }
+  sig(:final) { type_parameters(:E).params(value: T.type_parameter(:E)).returns(Err[T.type_parameter(:E)]) }
   def self.err(value)
     Err.new(value)
   end
@@ -992,9 +995,12 @@ module R
   # @see R::Ok
   class Err
     extend T::Sig
+    extend T::Helpers
     extend T::Generic
 
     include Result
+
+    final!
 
     # The type of the success value.
     #
@@ -1016,7 +1022,7 @@ module R
     #
     # @see R::Result#==
     # @see R::Ok#==
-    sig { override.params(other: T.anything).returns(T::Boolean) }
+    sig(:final) { override.params(other: T.anything).returns(T::Boolean) }
     def ==(other)
       case other
       when Err
@@ -1034,7 +1040,7 @@ module R
     #
     # @see R::Result#inspect
     # @see R::Ok#inspect
-    sig { override.returns(String) }
+    sig(:final) { override.returns(String) }
     def inspect
       value_repr = case @value
       when Object
@@ -1045,7 +1051,7 @@ module R
       "R.err(#{value_repr})"
     end
 
-    sig do
+    sig(:final) do
       type_parameters(:E)
         .params(value: T.type_parameter(:E))
         .returns(T.all(T.attached_class, Err[T.type_parameter(:E)]))
@@ -1054,7 +1060,7 @@ module R
       super(value)
     end
 
-    sig { params(value: ErrType).void }
+    sig(:final) { params(value: ErrType).void }
     def initialize(value)
       @value = value
     end
@@ -1067,7 +1073,7 @@ module R
     #
     # @see R::Result#ok?
     # @see R::Ok#ok?
-    sig { override.returns(FalseClass) }
+    sig(:final) { override.returns(FalseClass) }
     def ok?
       false
     end
@@ -1080,7 +1086,7 @@ module R
     #
     # @see R::Result#ok_and?
     # @see R::Ok#ok_and?
-    sig { override.params(blk: T.proc.params(value: OkType).returns(T::Boolean)).returns(FalseClass) }
+    sig(:final) { override.params(blk: T.proc.params(value: OkType).returns(T::Boolean)).returns(FalseClass) }
     def ok_and?(&blk)
       false
     end
@@ -1093,7 +1099,7 @@ module R
     #
     # @see R::Ok#err?
     # @see R::Err#err?
-    sig { override.returns(TrueClass) }
+    sig(:final) { override.returns(TrueClass) }
     def err?
       true
     end
@@ -1109,7 +1115,7 @@ module R
     #
     # @see R::Result#err_and?
     # @see R::Ok#err_and?
-    sig { override.params(blk: T.proc.params(value: ErrType).returns(T::Boolean)).returns(T::Boolean) }
+    sig(:final) { override.params(blk: T.proc.params(value: ErrType).returns(T::Boolean)).returns(T::Boolean) }
     def err_and?(&blk)
       yield(@value)
     end
@@ -1122,7 +1128,7 @@ module R
     #
     # @see R::Result#ok
     # @see R::Ok#ok
-    sig { override.returns(NilClass) }
+    sig(:final) { override.returns(NilClass) }
     def ok
       nil
     end
@@ -1135,7 +1141,7 @@ module R
     #
     # @see R::Result#err
     # @see R::Ok#err
-    sig { override.returns(ErrType) }
+    sig(:final) { override.returns(ErrType) }
     def err
       @value
     end
@@ -1146,7 +1152,7 @@ module R
     #
     # @see R::Result#map
     # @see R::Ok#map
-    sig do
+    sig(:final) do
       override
         .type_parameters(:U)
         .params(blk: T.proc.params(value: OkType).returns(T.type_parameter(:U)))
@@ -1167,7 +1173,7 @@ module R
     #
     # @see R::Result#map_or
     # @see R::Ok#map_or
-    sig do
+    sig(:final) do
       override
         .type_parameters(:U)
         .params(
@@ -1192,7 +1198,7 @@ module R
     #
     # @see R::Result#map_or_else
     # @see R::Ok#map_or_else
-    sig do
+    sig(:final) do
       override
         .type_parameters(:U)
         .params(
@@ -1208,7 +1214,7 @@ module R
     # Maps a {Result}`[T, E]` to {Result}`[T, F]` by applying a function to the contained {Err} value.
     #
     # @see R::Result#map_err
-    sig do
+    sig(:final) do
       override
         .type_parameters(:F)
         .params(blk: T.proc.params(value: ErrType).returns(T.type_parameter(:F)))
@@ -1226,7 +1232,7 @@ module R
     # Raises an {UnwrapFailedError} exception.
     #
     # @see R::Result#expect!
-    sig { override.params(msg: String).returns(T.noreturn) }
+    sig(:final) { override.params(msg: String).returns(T.noreturn) }
     def expect!(msg)
       raise UnwrapFailedError.new(msg, @value)
     end
@@ -1234,7 +1240,7 @@ module R
     # Raises an {UnwrapFailedError} exception.
     #
     # @see R::Result#unwrap!
-    sig { override.returns(T.noreturn) }
+    sig(:final) { override.returns(T.noreturn) }
     def unwrap!
       raise UnwrapFailedError.new("called `Result#unwrap!` on an `Err` value", @value)
     end
@@ -1242,7 +1248,7 @@ module R
     # Returns the contained {Err} value.
     #
     # @see R::Result#expect_err!
-    sig { override.params(msg: String).returns(ErrType) }
+    sig(:final) { override.params(msg: String).returns(ErrType) }
     def expect_err!(msg)
       @value
     end
@@ -1250,7 +1256,7 @@ module R
     # Returns the contained {Err} value.
     #
     # @see R::Result#unwrap_err!
-    sig { override.returns(ErrType) }
+    sig(:final) { override.returns(ErrType) }
     def unwrap_err!
       @value
     end
@@ -1258,7 +1264,7 @@ module R
     # Returns the {Err} value of `self`.
     #
     # @see R::Result#and
-    sig do
+    sig(:final) do
       override
         .type_parameters(:U, :F)
         .params(res: Result[T.type_parameter(:U), T.type_parameter(:F)])
@@ -1271,7 +1277,7 @@ module R
     # returns the {Err} value of `self`.
     #
     # @see R::Result#and_then
-    sig do
+    sig(:final) do
       override
         .type_parameters(:U, :F)
         .params(blk: T.proc.params(arg: OkType).returns(Result[T.type_parameter(:U), T.type_parameter(:F)]))
@@ -1284,7 +1290,7 @@ module R
     # Returns `res`.
     #
     # @see R::Result#or
-    sig do
+    sig(:final) do
       override
         .type_parameters(:U, :F)
         .params(res: Result[T.type_parameter(:U), T.type_parameter(:F)])
@@ -1297,7 +1303,7 @@ module R
     # Calls the block.
     #
     # @see R::Result#or_else
-    sig do
+    sig(:final) do
       override
         .type_parameters(:U, :F)
         .params(blk: T.proc.params(arg: ErrType).returns(Result[T.type_parameter(:U), T.type_parameter(:F)]))
@@ -1310,7 +1316,7 @@ module R
     # Returns the provided default.
     #
     # @see R::Result#unwrap_or
-    sig do
+    sig(:final) do
       override
         .type_parameters(:DefaultType)
         .params(default: T.type_parameter(:DefaultType))
@@ -1323,7 +1329,7 @@ module R
     # Computes an {Ok} value from a closure.
     #
     # @see R::Result#unwrap_or_else
-    sig do
+    sig(:final) do
       override
         .type_parameters(:DefaultType)
         .params(blk: T.proc.params(arg: ErrType).returns(T.type_parameter(:DefaultType)))
@@ -1336,7 +1342,7 @@ module R
     # Computes an {Ok} value from a closure.
     #
     # @see R::Result#unwrap_or_else
-    sig do
+    sig(:final) do
       override
         .params(blk: T.proc.params(arg: Err[ErrType]).returns(T.noreturn))
         .returns(T.noreturn)
@@ -1349,12 +1355,12 @@ module R
     # CALLBACK API -- not part of Rust
     #
 
-    sig { override.params(blk: T.proc.params(value: OkType).void).returns(T.self_type) }
+    sig(:final) { override.params(blk: T.proc.params(value: OkType).void).returns(T.self_type) }
     def on_ok(&blk)
       self
     end
 
-    sig { override.params(blk: T.proc.params(value: ErrType).void).returns(T.self_type) }
+    sig(:final) { override.params(blk: T.proc.params(value: ErrType).void).returns(T.self_type) }
     def on_err(&blk)
       yield(@value)
       self
