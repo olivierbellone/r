@@ -580,6 +580,9 @@ module R
         .returns(OkType)
     end
     def try?(&blk); end
+
+    sig { abstract.returns(T.self_type) }
+    def try!; end
   end
 
   # Creates a new instance of {Ok}.
@@ -595,6 +598,22 @@ module R
   sig(:final) { type_parameters(:T).params(value: T.type_parameter(:T)).returns(Ok[T.type_parameter(:T)]) }
   def self.ok(value)
     Ok.new(value)
+  end
+
+  sig do
+    type_parameters(:Ok, :Err)
+      .params(
+        blk: T.proc.returns(Result[T.type_parameter(:Ok), T.type_parameter(:Err)]),
+      )
+      .returns(Result[T.type_parameter(:Ok), T.type_parameter(:Err)])
+  end
+  def self.propagate!(&blk)
+    # TODO: using singleton class instance variables is obviously bad and not
+    # thread-safe but demonstrates how it might work.
+    @ball = T.let(Object.new, Object)
+    catch(@ball) { blk.call } # rubocop:disable Performance/RedundantBlockCall
+  ensure
+    @ball = nil
   end
 
   # Contains the success value.
@@ -1100,6 +1119,11 @@ module R
     end
     def try?(&blk)
       @value
+    end
+
+    sig(:final) { override.returns(T.self_type) }
+    def try!
+      self
     end
 
     # Calls the provided block with the contained value.
@@ -1654,6 +1678,15 @@ module R
     end
     def try?(&blk)
       yield(self)
+    end
+
+    sig(:final) { override.returns(T.self_type) }
+    def try!
+      if (ball = R.instance_variable_get(:@ball))
+        throw(ball, self)
+      else
+        self
+      end
     end
 
     # Does nothing.
