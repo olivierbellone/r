@@ -603,7 +603,7 @@ module R
   sig do
     type_parameters(:Ok, :Err)
       .params(
-        blk: T.proc.returns(Result[T.type_parameter(:Ok), T.type_parameter(:Err)]),
+        blk: T.proc.returns(T.nilable(Result[T.type_parameter(:Ok), T.type_parameter(:Err)])),
       )
       .returns(Result[T.type_parameter(:Ok), T.type_parameter(:Err)])
   end
@@ -611,7 +611,7 @@ module R
     # TODO: using singleton class instance variables is obviously bad and not
     # thread-safe but demonstrates how it might work.
     @ball = T.let(Object.new, Object)
-    catch(@ball) { blk.call } # rubocop:disable Performance/RedundantBlockCall
+    catch(@ball) { blk.call || R.ok(nil) } # rubocop:disable Performance/RedundantBlockCall
   ensure
     @ball = nil
   end
