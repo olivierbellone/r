@@ -9,7 +9,7 @@ R is an experimental Ruby gem which brings Rust's [`Result`](https://doc.rust-la
 
 Install the gem and add to the application's Gemfile by executing:
 
-    $ bundle add r --github=https://github.com/olivierbellone/r
+    $ bundle add r --github=olivierbellone/r
 
 If bundler is not being used to manage dependencies, install the gem by executing:
 
