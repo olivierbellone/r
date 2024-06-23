@@ -1225,7 +1225,7 @@ module R
         .returns(T.all(T.attached_class, Err[T.type_parameter(:E)]))
     end
     def self.new(value)
-      super(value)
+      super
     end
 
     # Creates a new instance of {Err}.
