@@ -400,7 +400,7 @@ module R
       describe "#or_else" do
         before do
           @sq = T.let(
-            ->(x) { R.ok(x**2) },
+            ->(x) { R.ok((x**2).to_i) },
             T.proc.params(x: Integer).returns(R::Result[Integer, Integer]),
           )
           @err = T.let(
