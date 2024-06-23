@@ -176,6 +176,19 @@ end
 
 If you think it's possible to implement something closer to Rust's `?`, I'd love to hear about it! Feel free to open an issue or PR to start a discussion.
 
+TODO: using `propagate!` and `try!`
+```ruby
+sig { params(info: Info).returns(R::Result[NilClass, StandardError]) }
+def write_info(info)
+  R.propagate! do
+    file = file_create("my_best_friends.txt").try!
+    file_write_all(file, "name: #{info.name}\n").try!
+    file_write_all(file, "age: #{info.age}\n").try!
+    file_write_all(file, "rating: #{info.rating}\n").try!
+  end
+end
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.

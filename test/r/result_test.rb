@@ -5,6 +5,34 @@ require "test_helper"
 
 module R
   class ResultTest < Minitest::Test
+    describe "R.propagate!" do
+      it "propagates the first try! error" do
+        ok1 = T.let(R.ok(1), R::Result[Integer, String])
+        err1 = T.let(R.err("err1"), R::Result[Integer, String])
+        err2 = T.let(R.err("err2"), R::Result[Integer, String])
+
+        result = R.propagate! do
+          ok1.try!
+          err1.try!
+          err2.try!
+        end
+
+        assert_equal(R.err("err1"), result)
+      end
+
+      it "propagates the last try! ok" do
+        ok1 = T.let(R.ok(1), R::Result[Integer, String])
+        ok2 = T.let(R.ok(2), R::Result[Integer, String])
+
+        result = R.propagate! do
+          ok1.try!
+          ok2.try!
+        end
+
+        assert_equal(R.ok(2), result)
+      end
+    end
+
     describe "R.ok" do
       it "returns a new instance of R::Ok" do
         x = R.ok(0)
