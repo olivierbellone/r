@@ -85,6 +85,7 @@ GEM
     sorbet (0.5.11444)
       sorbet-static (= 0.5.11444)
     sorbet-runtime (0.5.11444)
+    sorbet-static (0.5.11444-universal-darwin)
     sorbet-static (0.5.11444-x86_64-linux)
     sorbet-static-and-runtime (0.5.11444)
       sorbet (= 0.5.11444)
@@ -116,6 +117,7 @@ GEM
       yard (>= 0.9)
 
 PLATFORMS
+  arm64-darwin-23
   x86_64-linux
 
 DEPENDENCIES
