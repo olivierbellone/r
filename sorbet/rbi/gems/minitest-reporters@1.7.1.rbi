@@ -8,85 +8,85 @@
 # source://minitest-reporters//lib/minitest/reporters.rb#3
 module Minitest
   class << self
-    # source://minitest/5.25.0/lib/minitest.rb#322
+    # source://minitest/5.25.1/lib/minitest.rb#322
     def __run(reporter, options); end
 
-    # source://minitest/5.25.0/lib/minitest.rb#96
+    # source://minitest/5.25.1/lib/minitest.rb#96
     def after_run(&block); end
 
-    # source://minitest/5.25.0/lib/minitest.rb#19
+    # source://minitest/5.25.1/lib/minitest.rb#19
     def allow_fork; end
 
-    # source://minitest/5.25.0/lib/minitest.rb#19
+    # source://minitest/5.25.1/lib/minitest.rb#19
     def allow_fork=(_arg0); end
 
-    # source://minitest/5.25.0/lib/minitest.rb#69
+    # source://minitest/5.25.1/lib/minitest.rb#69
     def autorun; end
 
-    # source://minitest/5.25.0/lib/minitest.rb#19
+    # source://minitest/5.25.1/lib/minitest.rb#19
     def backtrace_filter; end
 
-    # source://minitest/5.25.0/lib/minitest.rb#19
+    # source://minitest/5.25.1/lib/minitest.rb#19
     def backtrace_filter=(_arg0); end
 
-    # source://minitest/5.25.0/lib/minitest.rb#18
+    # source://minitest/5.25.1/lib/minitest.rb#18
     def cattr_accessor(name); end
 
-    # source://minitest/5.25.0/lib/minitest.rb#1215
+    # source://minitest/5.25.1/lib/minitest.rb#1215
     def clock_time; end
 
-    # source://minitest/5.25.0/lib/minitest.rb#302
+    # source://minitest/5.25.1/lib/minitest.rb#302
     def empty_run!(options); end
 
-    # source://minitest/5.25.0/lib/minitest.rb#19
+    # source://minitest/5.25.1/lib/minitest.rb#19
     def extensions; end
 
-    # source://minitest/5.25.0/lib/minitest.rb#19
+    # source://minitest/5.25.1/lib/minitest.rb#19
     def extensions=(_arg0); end
 
-    # source://minitest/5.25.0/lib/minitest.rb#335
+    # source://minitest/5.25.1/lib/minitest.rb#335
     def filter_backtrace(bt); end
 
-    # source://minitest/5.25.0/lib/minitest.rb#19
+    # source://minitest/5.25.1/lib/minitest.rb#19
     def info_signal; end
 
-    # source://minitest/5.25.0/lib/minitest.rb#19
+    # source://minitest/5.25.1/lib/minitest.rb#19
     def info_signal=(_arg0); end
 
-    # source://minitest/5.25.0/lib/minitest.rb#124
+    # source://minitest/5.25.1/lib/minitest.rb#124
     def init_plugins(options); end
 
-    # source://minitest/5.25.0/lib/minitest.rb#108
+    # source://minitest/5.25.1/lib/minitest.rb#108
     def load_plugins; end
 
-    # source://minitest/5.25.0/lib/minitest.rb#19
+    # source://minitest/5.25.1/lib/minitest.rb#19
     def parallel_executor; end
 
-    # source://minitest/5.25.0/lib/minitest.rb#19
+    # source://minitest/5.25.1/lib/minitest.rb#19
     def parallel_executor=(_arg0); end
 
-    # source://minitest/5.25.0/lib/minitest.rb#142
+    # source://minitest/5.25.1/lib/minitest.rb#142
     def process_args(args = T.unsafe(nil)); end
 
-    # source://minitest/5.25.0/lib/minitest.rb#103
+    # source://minitest/5.25.1/lib/minitest.rb#103
     def register_plugin(name_or_mod); end
 
-    # source://minitest/5.25.0/lib/minitest.rb#19
+    # source://minitest/5.25.1/lib/minitest.rb#19
     def reporter; end
 
-    # source://minitest/5.25.0/lib/minitest.rb#19
+    # source://minitest/5.25.1/lib/minitest.rb#19
     def reporter=(_arg0); end
 
-    # source://minitest/5.25.0/lib/minitest.rb#268
+    # source://minitest/5.25.1/lib/minitest.rb#268
     def run(args = T.unsafe(nil)); end
 
-    # source://minitest/5.25.0/lib/minitest.rb#1206
+    # source://minitest/5.25.1/lib/minitest.rb#1206
     def run_one_method(klass, method_name); end
 
-    # source://minitest/5.25.0/lib/minitest.rb#19
+    # source://minitest/5.25.1/lib/minitest.rb#19
     def seed; end
 
-    # source://minitest/5.25.0/lib/minitest.rb#19
+    # source://minitest/5.25.1/lib/minitest.rb#19
     def seed=(_arg0); end
   end
 end

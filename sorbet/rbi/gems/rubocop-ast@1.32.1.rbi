@@ -1315,6 +1315,14 @@ class RuboCop::AST::EnsureNode < ::RuboCop::AST::Node
   #
   # source://rubocop-ast//lib/rubocop/ast/node/ensure_node.rb#12
   def body; end
+
+  # Checks whether this node body is a void context.
+  # Always `true` for `ensure`.
+  #
+  # @return [true] whether the `ensure` node body is a void context
+  #
+  # source://rubocop-ast//lib/rubocop/ast/node/ensure_node.rb#20
+  def void_context?; end
 end
 
 # source://rubocop-ast//lib/rubocop/ast/ext/range.rb#5
