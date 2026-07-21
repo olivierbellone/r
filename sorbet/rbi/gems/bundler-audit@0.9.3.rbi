@@ -10,7 +10,7 @@ module Bundler::Audit; end
 
 # Represents an advisory loaded from the {Database}.
 #
-# pkg:gem/bundler-audit#lib/bundler/audit/advisory.rb:38
+# pkg:gem/bundler-audit#lib/bundler/audit/advisory.rb:26
 class Bundler::Audit::Advisory < ::Struct
   # Compares two advisories.
   #
